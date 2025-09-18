@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V86 OS Launcher</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        
+        .os-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .os-card {
+            background: #fff;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .os-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .os-card.hdd {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .os-card.iso {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .os-card.dual {
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .os-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .os-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .os-type {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .os-type.hdd {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .os-type.iso {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+        
+        .os-type.dual {
+            background: #ebdef0;
+            color: #9b59b6;
+        }
+        
+        .os-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .launch-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        
+        .launch-button:hover {
+            background: #2980b9;
+        }
+        
+        .dual-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .dual-buttons .launch-button {
+            flex: 1;
+        }
+        
+        .hdd-button {
+            background: #27ae60;
+        }
+        
+        .hdd-button:hover {
+            background: #229954;
+        }
+        
+        .iso-button {
+            background: #e74c3c;
+        }
+        
+        .iso-button:hover {
+            background: #c0392b;
+        }
+        
+        .emulator-container {
+            display: none;
+            padding: 20px;
+            background: #000;
+            min-height: 400px;
+        }
+        
+        .emulator-controls {
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-button {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .control-button:hover {
+            background: #7f8c8d;
+        }
+        
+        .control-button.active {
+            background: #e67e22;
+        }
+        
+        .back-button {
+            background: #34495e;
+        }
+        
+        .back-button:hover {
+            background: #2c3e50;
+        }
+        
+        #screen_container {
+            border: 2px solid #34495e;
+            background: #000;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        #screen_container div {
+            white-space: pre;
+            font: 14px 'Courier New', monospace;
+            line-height: 14px;
+            color: #c0c0c0;
+        }
+        
+        #screen_container canvas {
+            display: none;
+        }
+        
+        .status {
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border-top: 1px solid #bdc3c7;
+            font-size: 14px;
+            color: #7f8c8d;
+            display: none;
+        }
+        
+        .legend {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+        
+        .legend-color.hdd {
+            background: #27ae60;
+        }
+        
+        .legend-color.iso {
+            background: #e74c3c;
+        }
+        
+        .legend-color.dual {
+            background: #9b59b6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>V86 Operating System Launcher</h1>
+            <p>Choose an operating system to boot in the emulator</p>
+        </div>
+        
+        <div id="os-selector" class="os-grid">
+            <!-- Windows Systems -->
+            <div class="os-card hdd" data-path="OSes/windows1/windows101.img" data-type="hdd" data-name="Windows 1.01">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 1.01</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">The first version of Microsoft Windows from 1985</div>
+                <button class="launch-button hdd-button">Launch Windows 1.01</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/windows2/windows2.img" data-type="hdd" data-name="Windows 2.x">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 2.x</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Early Windows with overlapping windows support</div>
+                <button class="launch-button hdd-button">Launch Windows 2.x</button>
+            </div>
+            
+            <div class="os-card iso" data-path="OSes/windows3/Win30.iso" data-type="iso" data-name="Windows 3.0">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 3.0</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Major Windows release with Program Manager</div>
+                <button class="launch-button iso-button">Launch Windows 3.0</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/windows311/hdd.img" data-type="hdd" data-name="Windows 3.11">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 3.11</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Windows for Workgroups with networking</div>
+                <button class="launch-button hdd-button">Launch Windows 3.11</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/windows98/hdd.img" data-type="hdd" data-name="Windows 98">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 98</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Popular Windows 9x with Internet Explorer integration</div>
+                <button class="launch-button hdd-button">Launch Windows 98</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/windowsnt4/hdd.img" data-type="hdd" data-name="Windows NT 4.0">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows NT 4.0</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Professional Windows with NT kernel</div>
+                <button class="launch-button hdd-button">Launch Windows NT 4.0</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/windows2000/hdd.img" data-type="hdd" data-name="Windows 2000">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows 2000</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Business-focused Windows with improved stability</div>
+                <button class="launch-button hdd-button">Launch Windows 2000</button>
+            </div>
+            
+            <div class="os-card dual" data-hdd="OSes/windowsxp/hdd.img" data-iso="OSes/windowsxp/winxp.iso" data-type="dual" data-name="Windows XP">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows XP</div>
+                <div class="os-type dual">Dual Format</div>
+                <div class="os-description">Popular Windows with Luna interface</div>
+                <div class="dual-buttons">
+                    <button class="launch-button hdd-button" data-mode="hdd">Boot Installed</button>
+                    <button class="launch-button iso-button" data-mode="iso">Install from CD</button>
+                </div>
+            </div>
+            
+            <!-- Other Windows -->
+            <div class="os-card iso" data-path="OSes/windowsce5/ce5.iso" data-type="iso" data-name="Windows CE 5.0">
+                <div class="os-icon">📱</div>
+                <div class="os-name">Windows CE 5.0</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Embedded Windows for mobile devices</div>
+                <button class="launch-button iso-button">Launch Windows CE 5.0</button>
+            </div>
+            
+            <!-- Alternative Operating Systems -->
+            <div class="os-card iso" data-path="OSes/reactos/reactos.iso" data-type="iso" data-name="ReactOS">
+                <div class="os-icon">⚛️</div>
+                <div class="os-name">ReactOS</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Open source Windows NT compatible OS</div>
+                <button class="launch-button iso-button">Launch ReactOS</button>
+            </div>
+            
+            <div class="os-card hdd" data-path="OSes/Haiku/hdd.img" data-type="hdd" data-name="Haiku">
+                <div class="os-icon">🌺</div>
+                <div class="os-name">Haiku</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">BeOS-inspired modern operating system</div>
+                <button class="launch-button hdd-button">Launch Haiku</button>
+            </div>
+            
+            <!-- Linux Systems -->
+            <div class="os-card iso" data-path="OSes/DSL/dsl.iso" data-type="iso" data-name="Damn Small Linux">
+                <div class="os-icon">🐧</div>
+                <div class="os-name">Damn Small Linux</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Tiny Linux distribution (50MB)</div>
+                <button class="launch-button iso-button">Launch DSL</button>
+            </div>
+            
+            <!-- Mobile/Embedded -->
+            <div class="os-card iso" data-path="OSes/android/android.iso" data-type="iso" data-name="Android x86">
+                <div class="os-icon">🤖</div>
+                <div class="os-name">Android x86</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Android ported to x86 architecture</div>
+                <button class="launch-button iso-button">Launch Android x86</button>
+            </div>
+            
+            <!-- Utility Collections -->
+            <div class="os-card iso" data-path="OSes/hbcd/hbcd.iso" data-type="iso" data-name="Hiren's Boot CD">
+                <div class="os-icon">🔧</div>
+                <div class="os-name">Hiren's Boot CD</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Comprehensive system rescue and repair tools</div>
+                <button class="launch-button iso-button">Launch HBCD</button>
+            </div>
+            
+            <div class="os-card iso" data-path="OSes/CECollection/CECollections.iso" data-type="iso" data-name="CE Collections">
+                <div class="os-icon">💿</div>
+                <div class="os-name">CE Collections</div>
+                <div class="os-type iso">CD-ROM</div>
+                <div class="os-description">Collection of Windows CE applications</div>
+                <button class="launch-button iso-button">Launch CE Collections</button>
+            </div>
+        </div>
+        
+        <div class="emulator-controls" id="emulator-controls">
+            <div class="control-buttons">
+                <button id="mouse-capture-btn" class="control-button">Capture Mouse</button>
+                <button id="keyboard-capture-btn" class="control-button">Capture Keyboard</button>
+            </div>
+            <button id="back-button" class="control-button back-button">← Back to OS Selection</button>
+        </div>
+        
+        <div class="emulator-container" id="emulator-container">
+            <div id="screen_container">
+                <div style="white-space: pre; font: 14px monospace; line-height: 14px; color: #c0c0c0; padding: 20px;">
+                    V86 Emulator Loading...
+                    
+                    Please wait while the operating system boots.
+                </div>
+                <canvas style="display: none"></canvas>
+            </div>
+        </div>
+        
+        <div class="status" id="status">
+            Status: Ready
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color hdd"></div>
+                <span>Hard Disk Image - Pre-installed OS ready to boot</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color iso"></div>
+                <span>CD-ROM Image - Installation or live boot disk</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color dual"></div>
+                <span>Dual Format - Both installed and installation media available</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="build/libv86.js"></script>
+    <script>
+        "use strict";
+        
+        let emulator = null;
+        let mouseCaptured = false;
+        let keyboardCaptured = false;
+        
+        // UI Elements
+        const osSelector = document.getElementById('os-selector');
+        const emulatorContainer = document.getElementById('emulator-container');
+        const emulatorControls = document.getElementById('emulator-controls');
+        const statusElement = document.getElementById('status');
+        const backButton = document.getElementById('back-button');
+        const mouseCaptureBtn = document.getElementById('mouse-capture-btn');
+        const keyboardCaptureBtn = document.getElementById('keyboard-capture-btn');
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            setupOSCards();
+            setupControlButtons();
+        });
+        
+        function setupOSCards() {
+            const osCards = document.querySelectorAll('.os-card');
+            osCards.forEach(card => {
+                const launchButtons = card.querySelectorAll('.launch-button');
+                launchButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handleOSLaunch(card, button);
+                    });
+                });
+            });
+        }
+        
+        function setupControlButtons() {
+            backButton.addEventListener('click', showOSSelector);
+            mouseCaptureBtn.addEventListener('click', toggleMouseCapture);
+            keyboardCaptureBtn.addEventListener('click', toggleKeyboardCapture);
+        }
+        
+        function handleOSLaunch(card, button) {
+            const osName = card.dataset.name;
+            const osType = card.dataset.type;
+            
+            let imagePath, bootType;
+            
+            if (osType === 'dual') {
+                const mode = button.dataset.mode;
+                if (mode === 'hdd') {
+                    imagePath = card.dataset.hdd;
+                    bootType = 'hdd';
+                } else {
+                    imagePath = card.dataset.iso;
+                    bootType = 'cdrom';
+                }
+            } else {
+                imagePath = card.dataset.path;
+                bootType = osType === 'hdd' ? 'hdd' : 'cdrom';
+            }
+            
+            launchOS(osName, imagePath, bootType);
+        }
+        
+        async function launchOS(name, imagePath, bootType) {
+            showEmulator();
+            updateStatus(`Loading ${name}...`);
+            
+            try {
+                // Stop existing emulator
+                if (emulator) {
+                    emulator.destroy();
+                    emulator = null;
+                }
+                
+                // Configure emulator based on OS type
+                const config = {
+                    wasm_path: "build/v86.wasm",
+                    memory_size: getOptimalRAM(name),
+                    vga_memory_size: 32 * 1024 * 1024,
+                    screen_container: document.getElementById("screen_container"),
+                    bios: {
+                        url: "build/seabios.bin",
+                    },
+                    vga_bios: {
+                        url: "build/vgabios.bin",
+                    },
+                    autostart: true,
+                };
+                
+                // Set boot device and image
+                if (bootType === 'hdd') {
+                    config.hda = { url: imagePath };
+                    config.boot_order = 0x213; // HDD first
+                } else {
+                    config.cdrom = { url: imagePath };
+                    config.boot_order = 0x123; // CDROM first
+                }
+                
+                updateStatus(`Starting ${name}...`);
+                emulator = new V86(config);
+                
+                // Set up event handlers
+                emulator.add_listener("emulator-ready", function() {
+                    updateStatus(`${name} started successfully`);
+                    enableControls();
+                    
+                    // Enable mouse and keyboard by default
+                    emulator.mouse_set_status(true);
+                    emulator.keyboard_set_status(true);
+                    keyboardCaptured = true;
+                    updateControlUI();
+                });
+                
+                emulator.add_listener("emulator-stopped", function() {
+                    updateStatus('Emulator stopped');
+                    disableControls();
+                });
+                
+                // Handle mouse lock/unlock events
+                document.addEventListener('pointerlockchange', function() {
+                    const screenContainer = document.getElementById('screen_container');
+                    if (document.pointerLockElement === screenContainer) {
+                        if (!mouseCaptured) {
+                            mouseCaptured = true;
+                            updateControlUI();
+                            updateStatus('Mouse captured - Press Ctrl+Alt to release');
+                        }
+                    } else {
+                        if (mouseCaptured) {
+                            mouseCaptured = false;
+                            updateControlUI();
+                            updateStatus('Mouse released');
+                        }
+                    }
+                });
+                
+                // Auto-capture mouse on screen click
+                const screenContainer = document.getElementById('screen_container');
+                screenContainer.addEventListener('click', function() {
+                    if (!mouseCaptured) {
+                        toggleMouseCapture();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error starting emulator:', error);
+                updateStatus(`Failed to start ${name}: ${error.message}`);
+            }
+        }
+        
+        function getOptimalRAM(osName) {
+            // Return optimal RAM size based on OS
+            const ramConfigs = {
+                'Windows 1.01': 4 * 1024 * 1024,      // 4MB
+                'Windows 2.x': 8 * 1024 * 1024,       // 8MB
+                'Windows 3.0': 16 * 1024 * 1024,      // 16MB
+                'Windows 3.11': 32 * 1024 * 1024,     // 32MB
+                'Windows 98': 128 * 1024 * 1024,      // 128MB
+                'Windows NT 4.0': 256 * 1024 * 1024,  // 256MB
+                'Windows 2000': 512 * 1024 * 1024,    // 512MB
+                'Windows XP': 512 * 1024 * 1024,      // 512MB
+                'Haiku': 256 * 1024 * 1024,           // 256MB
+                'Damn Small Linux': 64 * 1024 * 1024, // 64MB
+                'Android x86': 512 * 1024 * 1024,     // 512MB
+            };
+            
+            return ramConfigs[osName] || 128 * 1024 * 1024; // Default 128MB
+        }
+        
+        function showOSSelector() {
+            osSelector.style.display = 'grid';
+            emulatorContainer.style.display = 'none';
+            emulatorControls.style.display = 'none';
+            statusElement.style.display = 'none';
+            
+            if (emulator) {
+                emulator.destroy();
+                emulator = null;
+            }
+            
+            mouseCaptured = false;
+            keyboardCaptured = false;
+        }
+        
+        function showEmulator() {
+            osSelector.style.display = 'none';
+            emulatorContainer.style.display = 'block';
+            emulatorControls.style.display = 'flex';
+            statusElement.style.display = 'block';
+        }
+        
+        function toggleMouseCapture() {
+            if (!emulator) return;
+            
+            if (mouseCaptured) {
+                if (document.exitPointerLock) {
+                    document.exitPointerLock();
+                }
+                mouseCaptured = false;
+                updateControlUI();
+                updateStatus('Mouse released');
+            } else {
+                try {
+                    emulator.lock_mouse();
+                    mouseCaptured = true;
+                    updateControlUI();
+                    updateStatus('Mouse captured - Press Ctrl+Alt to release');
+                } catch (error) {
+                    console.error('Failed to capture mouse:', error);
+                    updateStatus('Failed to capture mouse');
+                }
+            }
+        }
+        
+        function toggleKeyboardCapture() {
+            if (!emulator) return;
+            
+            if (keyboardCaptured) {
+                emulator.keyboard_set_status(false);
+                keyboardCaptured = false;
+                updateControlUI();
+                updateStatus('Keyboard released');
+            } else {
+                emulator.keyboard_set_status(true);
+                keyboardCaptured = true;
+                updateControlUI();
+                updateStatus('Keyboard captured');
+            }
+        }
+        
+        function updateControlUI() {
+            // Update mouse capture button
+            if (mouseCaptured) {
+                mouseCaptureBtn.textContent = 'Release Mouse';
+                mouseCaptureBtn.classList.add('active');
+            } else {
+                mouseCaptureBtn.textContent = 'Capture Mouse';
+                mouseCaptureBtn.classList.remove('active');
+            }
+            
+            // Update keyboard capture button
+            if (keyboardCaptured) {
+                keyboardCaptureBtn.textContent = 'Release Keyboard';
+                keyboardCaptureBtn.classList.add('active');
+            } else {
+                keyboardCaptureBtn.textContent = 'Capture Keyboard';
+                keyboardCaptureBtn.classList.remove('active');
+            }
+        }
+        
+        function enableControls() {
+            mouseCaptureBtn.disabled = false;
+            keyboardCaptureBtn.disabled = false;
+        }
+        
+        function disableControls() {
+            mouseCaptureBtn.disabled = true;
+            keyboardCaptureBtn.disabled = true;
+            mouseCaptured = false;
+            keyboardCaptured = false;
+            updateControlUI();
+        }
+        
+        function updateStatus(message) {
+            statusElement.textContent = `Status: ${message}`;
+        }
+        
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Alt to release mouse
+            if (e.ctrlKey && e.altKey && !e.shiftKey && mouseCaptured) {
+                e.preventDefault();
+                if (document.exitPointerLock) {
+                    document.exitPointerLock();
+                }
+            }
+            // Ctrl+Alt+Shift to release keyboard
+            else if (e.ctrlKey && e.altKey && e.shiftKey && keyboardCaptured) {
+                e.preventDefault();
+                toggleKeyboardCapture();
+            }
+        });
+        
+        // Initialize
+        disableControls();
+        updateStatus('Select an operating system to launch');
+    </script>
+</body>
+</html>
