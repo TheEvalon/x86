@@ -1,1110 +1,346 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V86 Emulator - Main Interface</title>
+    <meta name="description" content="V86 x86 Emulator Web Interface - Run vintage operating systems like Windows 98, XP, ReactOS, and more directly in your browser. Features 14+ pre-configured systems and custom OS upload.">
+    <meta name="keywords" content="V86, x86 emulator, vintage OS, Windows 98, Windows XP, ReactOS, browser emulator, retro computing, operating system emulation">
+    <meta name="author" content="V86 Web Interface">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oses.ioblako.com/">
+    <meta property="og:title" content="V86 x86 Emulator - Run Vintage Operating Systems in Browser">
+    <meta property="og:description" content="Experience classic operating systems like Windows 98, XP, and ReactOS directly in your browser. No downloads required - powered by WebAssembly.">
+    <meta property="og:image" content="https://oses.ioblako.com/assets/og-image.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://oses.ioblako.com/">
+    <meta property="twitter:title" content="V86 x86 Emulator - Run Vintage Operating Systems in Browser">
+    <meta property="twitter:description" content="Experience classic operating systems like Windows 98, XP, and ReactOS directly in your browser. No downloads required - powered by WebAssembly.">
+    <meta property="twitter:image" content="https://oses.ioblako.com/assets/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://oses.ioblako.com/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "V86 x86 Emulator Web Interface",
+        "description": "Web-based x86 emulator running vintage operating systems in browser using WebAssembly",
+        "url": "https://oses.ioblako.com/",
+        "applicationCategory": "EmulatorApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "copy (Fabian Hemmer)"
+        },
+        "softwareVersion": "1.0",
+        "datePublished": "2025-09-18",
+        "programmingLanguage": ["JavaScript", "WebAssembly"],
+        "featureList": [
+            "x86 Processor Emulation",
+            "Multiple Operating Systems",
+            "Browser-based Execution",
+            "No Installation Required",
+            "Vintage OS Preservation"
+        ]
+    }
+    </script>
+    
+    <title>V86 x86 Emulator - Run Vintage Operating Systems in Your Browser</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3LVGPGFTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E3LVGPGFTN');
+    </script>
+    
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-            color: #333;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
+            padding: 40px 20px;
             text-align: center;
         }
         
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 300;
+        .hero {
+            margin-bottom: 60px;
         }
         
-        .controls {
-            padding: 20px;
-            background: #ecf0f1;
-            border-bottom: 1px solid #bdc3c7;
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .control-group {
-            margin-bottom: 15px;
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
         }
         
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-right: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .file-input-label {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #3498db;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-size: 14px;
-        }
-        
-        .file-input-label:hover {
-            background: #2980b9;
-        }
-        
-        .file-name {
-            margin-left: 10px;
-            color: #27ae60;
-            font-weight: 500;
-        }
-        
-        select {
-            padding: 8px 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 14px;
-            background: white;
-            min-width: 200px;
-        }
-        
-        .memory-controls {
+        .cta-buttons {
             display: flex;
             gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        .memory-option {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .memory-option label {
-            margin-bottom: 0;
-            font-size: 14px;
-        }
-        
-        .winnt-checkbox {
-            margin-right: 8px;
-            transform: scale(1.1);
-        }
-        
-        .winnt-help {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 3px;
-            line-height: 1.3;
-        }
-        
-        .boot-controls {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .start-button {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .start-button:hover:not(:disabled) {
-            background: #229954;
-        }
-        
-        .start-button:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-        
-        .screen-container {
-            padding: 20px;
-            background: #000;
-            min-height: 400px;
-            display: flex;
             justify-content: center;
-            align-items: center;
-        }
-        
-        #screen_container {
-            border: 2px solid #34495e;
-            background: #000;
-        }
-        
-        #screen_container div {
-            white-space: pre;
-            font: 14px 'Courier New', monospace;
-            line-height: 14px;
-            color: #c0c0c0;
-        }
-        
-        #screen_container canvas {
-            display: none;
-        }
-        
-        .status {
-            padding: 15px 20px;
-            background: #ecf0f1;
-            border-top: 1px solid #bdc3c7;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .error {
-            color: #e74c3c;
-            background: #fadbd8;
-            border: 1px solid #f1948a;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-        
-        .info {
-            color: #2980b9;
-            background: #d6eaf8;
-            border: 1px solid #85c1e9;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-        
-        .capture-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-bottom: 60px;
         }
         
-        .capture-button {
-            background: #8e44ad;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .capture-button:hover:not(:disabled) {
-            background: #7d3c98;
-        }
-        
-        .capture-button:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-        
-        .capture-button.active {
-            background: #e67e22;
-        }
-        
-        .capture-button.active:hover {
-            background: #d68910;
-        }
-        
-        .capture-status {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            font-size: 14px;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #95a5a6;
-            transition: background 0.3s;
-        }
-        
-        .status-indicator.active {
-            background: #27ae60;
-            box-shadow: 0 0 8px rgba(39, 174, 96, 0.5);
-        }
-        
-        .capture-help {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 5px;
-            line-height: 1.4;
-        }
-        
-        .special-keys-container {
-            position: relative;
+        .cta-button {
             display: inline-block;
-        }
-        
-        .special-keys-button {
-            background: #9b59b6;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .special-keys-button:hover:not(:disabled) {
-            background: #8e44ad;
-        }
-        
-        .special-keys-button:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-        
-        .special-keys-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            min-width: 200px;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .special-keys-menu.show {
-            display: block;
-        }
-        
-        .key-category {
-            padding: 8px 12px;
-            background: #ecf0f1;
-            border-bottom: 1px solid #bdc3c7;
+            text-decoration: none;
+            border-radius: 50px;
             font-weight: 600;
-            font-size: 12px;
-            color: #2c3e50;
-            text-transform: uppercase;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
-        .key-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-bottom: 1px solid #ecf0f1;
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #764ba2;
+        }
+        
+        .cta-button.primary:hover {
+            background: white;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .feature p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .os-preview {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .os-preview h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .os-list {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
         }
         
-        .key-item:hover {
-            background: #f8f9fa;
+        .os-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
-        .key-item:active {
-            background: #e9ecef;
+        .os-tag.clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .key-name {
-            font-weight: 500;
-            color: #2c3e50;
+        .os-tag.clickable:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
-        .key-description {
-            font-size: 12px;
-            color: #7f8c8d;
+        .footer {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cta-button {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="hero">
             <h1>V86 x86 Emulator</h1>
-            <p>Upload disk images and boot your virtual machine</p>
+            <p>Experience vintage operating systems directly in your browser. No downloads, no installation - just pure nostalgia powered by cutting-edge WebAssembly technology.</p>
         </div>
         
-        <div class="controls">
-            <div class="control-group">
-                <label>Hard Disk Image (.img)</label>
-                <div class="file-input-wrapper">
-                    <input type="file" id="hda-file" class="file-input" accept=".img">
-                    <label for="hda-file" class="file-input-label">Choose HDA File</label>
-                    <span id="hda-filename" class="file-name"></span>
-                </div>
+        <div class="cta-buttons">
+            <a href="new.html" class="cta-button primary">🚀 Launch OS Collection</a>
+            <a href="main.html" class="cta-button">📁 Upload Custom OS</a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🖥️</div>
+                <h3>14+ Operating Systems</h3>
+                <p>Pre-configured collection from Windows 1.01 to modern alternatives like ReactOS and Haiku. Each system optimized for best performance.</p>
             </div>
             
-            <div class="control-group">
-                <label>CD-ROM Image (.iso)</label>
-                <div class="file-input-wrapper">
-                    <input type="file" id="cdrom-file" class="file-input" accept=".iso">
-                    <label for="cdrom-file" class="file-input-label">Choose CDROM File</label>
-                    <span id="cdrom-filename" class="file-name"></span>
-                </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>WebAssembly Powered</h3>
+                <p>Near-native performance using WebAssembly technology. Full x86 processor emulation running entirely in your browser.</p>
             </div>
             
-            <div class="control-group">
-                <div class="memory-controls">
-                    <div class="memory-option">
-                        <label for="ram-size">RAM Size (MB)</label>
-                        <select id="ram-size">
-                            <option value="128">128 MB</option>
-                            <option value="256">256 MB</option>
-                            <option value="512" selected>512 MB (Default)</option>
-                            <option value="1024">1024 MB</option>
-                        </select>
-                    </div>
-                    <div class="memory-option">
-                        <label for="video-memory">Video Memory (MB)</label>
-                        <select id="video-memory">
-                            <option value="8">8 MB</option>
-                            <option value="16">16 MB</option>
-                            <option value="32" selected>32 MB (Default)</option>
-                            <option value="64">64 MB</option>
-                        </select>
-                    </div>
-                    <div class="memory-option">
-                        <label>
-                            <input type="checkbox" id="winnt-compat" class="winnt-checkbox">
-                            Windows NT Compatibility
-                        </label>
-                        <div class="winnt-help">
-                            Enable for Windows NT, 2000, and similar older OS
-                        </div>
-                    </div>
-                </div>
+            <div class="feature">
+                <div class="feature-icon">🎮</div>
+                <h3>Full Interaction</h3>
+                <p>Complete mouse and keyboard support with special key injection. Hardware-accurate scancode generation for perfect compatibility.</p>
             </div>
             
-            <div class="control-group">
-                <div class="boot-controls">
-                    <div>
-                        <label for="boot-order">Boot Order</label>
-                        <select id="boot-order">
-                            <option value="hda-first">Hard Disk First</option>
-                            <option value="cdrom-first">CD-ROM First</option>
-                            <option value="hda-only">Hard Disk Only</option>
-                            <option value="cdrom-only">CD-ROM Only</option>
-                        </select>
-                    </div>
-                    <button id="start-button" class="start-button">Start Emulator</button>
-                </div>
-                
-                <div class="capture-controls">
-                    <button id="mouse-capture-btn" class="capture-button" disabled>
-                        Capture Mouse
-                    </button>
-                    <button id="keyboard-capture-btn" class="capture-button" disabled>
-                        Capture Keyboard
-                    </button>
-                    
-                    <div class="special-keys-container">
-                        <button id="special-keys-btn" class="special-keys-button" disabled>
-                            Special Keys ▼
-                        </button>
-                        <div id="special-keys-menu" class="special-keys-menu">
-                            <div class="key-category">System Keys</div>
-                            <div class="key-item" data-keys="ctrl+alt+delete">
-                                <span class="key-name">Ctrl+Alt+Delete</span>
-                                <span class="key-description">System interrupt</span>
-                            </div>
-                            <div class="key-item" data-keys="ctrl+alt+end">
-                                <span class="key-name">Ctrl+Alt+End</span>
-                                <span class="key-description">Secure attention</span>
-                            </div>
-                            <div class="key-item" data-keys="ctrl+shift+escape">
-                                <span class="key-name">Ctrl+Shift+Esc</span>
-                                <span class="key-description">Task manager</span>
-                            </div>
-                            
-                            <div class="key-category">Function Keys</div>
-                            <div class="key-item" data-keys="f1">
-                                <span class="key-name">F1</span>
-                                <span class="key-description">Help</span>
-                            </div>
-                            <div class="key-item" data-keys="f2">
-                                <span class="key-name">F2</span>
-                                <span class="key-description">Rename</span>
-                            </div>
-                            <div class="key-item" data-keys="f3">
-                                <span class="key-name">F3</span>
-                                <span class="key-description">Search</span>
-                            </div>
-                            <div class="key-item" data-keys="f4">
-                                <span class="key-name">F4</span>
-                                <span class="key-description">Address bar</span>
-                            </div>
-                            <div class="key-item" data-keys="f5">
-                                <span class="key-name">F5</span>
-                                <span class="key-description">Refresh</span>
-                            </div>
-                            <div class="key-item" data-keys="f6">
-                                <span class="key-name">F6</span>
-                                <span class="key-description">Navigate</span>
-                            </div>
-                            <div class="key-item" data-keys="f7">
-                                <span class="key-name">F7</span>
-                                <span class="key-description">Spell check</span>
-                            </div>
-                            <div class="key-item" data-keys="f8">
-                                <span class="key-name">F8</span>
-                                <span class="key-description">Boot options</span>
-                            </div>
-                            <div class="key-item" data-keys="f9">
-                                <span class="key-name">F9</span>
-                                <span class="key-description">Send/Receive</span>
-                            </div>
-                            <div class="key-item" data-keys="f10">
-                                <span class="key-name">F10</span>
-                                <span class="key-description">Menu bar</span>
-                            </div>
-                            <div class="key-item" data-keys="f11">
-                                <span class="key-name">F11</span>
-                                <span class="key-description">Fullscreen</span>
-                            </div>
-                            <div class="key-item" data-keys="f12">
-                                <span class="key-name">F12</span>
-                                <span class="key-description">Save as</span>
-                            </div>
-                            
-                            <div class="key-category">Navigation Keys</div>
-                            <div class="key-item" data-keys="alt+tab">
-                                <span class="key-name">Alt+Tab</span>
-                                <span class="key-description">Switch windows</span>
-                            </div>
-                            <div class="key-item" data-keys="alt+f4">
-                                <span class="key-name">Alt+F4</span>
-                                <span class="key-description">Close window</span>
-                            </div>
-                            <div class="key-item" data-keys="windows">
-                                <span class="key-name">Windows Key</span>
-                                <span class="key-description">Start menu</span>
-                            </div>
-                            <div class="key-item" data-keys="menu">
-                                <span class="key-name">Menu Key</span>
-                                <span class="key-description">Context menu</span>
-                            </div>
-                            
-                            <div class="key-category">Special Characters</div>
-                            <div class="key-item" data-keys="printscreen">
-                                <span class="key-name">Print Screen</span>
-                                <span class="key-description">Screenshot</span>
-                            </div>
-                            <div class="key-item" data-keys="scrolllock">
-                                <span class="key-name">Scroll Lock</span>
-                                <span class="key-description">Scroll mode</span>
-                            </div>
-                            <div class="key-item" data-keys="pause">
-                                <span class="key-name">Pause/Break</span>
-                                <span class="key-description">System pause</span>
-                            </div>
-                            <div class="key-item" data-keys="insert">
-                                <span class="key-name">Insert</span>
-                                <span class="key-description">Insert mode</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="capture-status">
-                        <div>
-                            <span class="status-indicator" id="mouse-status"></span>
-                            Mouse
-                        </div>
-                        <div>
-                            <span class="status-indicator" id="keyboard-status"></span>
-                            Keyboard
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="capture-help">
-                    <strong>Capture Help:</strong> Click "Capture Mouse" to lock mouse to VM. Press Ctrl+Alt to release mouse. 
-                    Keyboard capture sends all keys to VM. Press Ctrl+Alt+Shift to release keyboard focus.
-                </div>
+            <div class="feature">
+                <div class="feature-icon">💾</div>
+                <h3>Custom Upload</h3>
+                <p>Upload your own .img and .iso files. Configurable memory settings and boot order for maximum compatibility.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔧</div>
+                <h3>No Installation</h3>
+                <p>Everything runs in your browser. No plugins, no downloads, no security concerns. Just open and start computing.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📚</div>
+                <h3>Educational Purpose</h3>
+                <p>Perfect for education, software preservation, and experiencing computing history. Learn how operating systems evolved.</p>
             </div>
         </div>
         
-        <div class="screen-container">
-            <div id="screen_container">
-                <div style="white-space: pre; font: 14px monospace; line-height: 14px; color: #c0c0c0; padding: 20px;">
-                    V86 Emulator Ready
-                    
-                    Please upload disk images and click "Start Emulator" to begin.
-                    
-                    Supported formats:
-                    • Hard Disk: .img files
-                    • CD-ROM: .iso files
-                </div>
-                <canvas style="display: none"></canvas>
+        <div class="os-preview">
+            <h2>Available Operating Systems</h2>
+            <p>Explore decades of computing history with our curated collection</p>
+            <div class="os-list">
+                <div class="os-tag">Windows 1.01</div>
+                <div class="os-tag">Windows 2.x</div>
+                <div class="os-tag">Windows 3.0/3.11</div>
+                <div class="os-tag">Windows 98</div>
+                <div class="os-tag clickable" onclick="launchWindowsNT()">Windows NT 4.0</div>
+                <div class="os-tag">Windows NT 5.0</div>
+                <div class="os-tag">Windows 2000</div>
+                <div class="os-tag">Windows XP</div>
+                <div class="os-tag">Windows CE 5.0</div>
+                <div class="os-tag">ReactOS</div>
+                <div class="os-tag">Haiku</div>
+                <div class="os-tag">Android x86</div>
+                <div class="os-tag">Damn Small Linux</div>
+                <div class="os-tag">Hiren's Boot CD</div>
             </div>
         </div>
         
-        <div class="status" id="status">
-            Status: Ready - Upload files and configure boot order to start
+        <div class="footer">
+            <p>Powered by <a href="https://github.com/copy/v86" target="_blank">V86 Emulator</a> by <strong>copy (Fabian Hemmer)</strong></p>
+            <p>Educational and preservation purposes only • <a href="README.md">Documentation</a></p>
         </div>
     </div>
 
-    <script src="build/libv86.js"></script>
     <script>
-        "use strict";
-        
-        let emulator = null;
-        let hdaFile = null;
-        let cdromFile = null;
-        let mouseCaptured = false;
-        let keyboardCaptured = false;
-        
-        // File input handlers
-        document.getElementById('hda-file').addEventListener('change', function(e) {
-            hdaFile = e.target.files[0];
-            const filename = document.getElementById('hda-filename');
-            if (hdaFile) {
-                filename.textContent = hdaFile.name;
-                filename.style.color = '#27ae60';
-                updateStatus(`HDA file selected: ${hdaFile.name}`);
-            } else {
-                filename.textContent = '';
-            }
-            updateStartButton();
-        });
-        
-        document.getElementById('cdrom-file').addEventListener('change', function(e) {
-            cdromFile = e.target.files[0];
-            const filename = document.getElementById('cdrom-filename');
-            if (cdromFile) {
-                filename.textContent = cdromFile.name;
-                filename.style.color = '#27ae60';
-                updateStatus(`CDROM file selected: ${cdromFile.name}`);
-            } else {
-                filename.textContent = '';
-            }
-            updateStartButton();
-        });
-        
-        // Start button handler
-        document.getElementById('start-button').addEventListener('click', startEmulator);
-        
-        // Capture button handlers
-        document.getElementById('mouse-capture-btn').addEventListener('click', toggleMouseCapture);
-        document.getElementById('keyboard-capture-btn').addEventListener('click', toggleKeyboardCapture);
-        
-        // Special keys button handler
-        document.getElementById('special-keys-btn').addEventListener('click', toggleSpecialKeysMenu);
-        
-        function updateStartButton() {
-            const startButton = document.getElementById('start-button');
-            const bootOrder = document.getElementById('boot-order').value;
-            
-            let canStart = false;
-            
-            switch(bootOrder) {
-                case 'hda-only':
-                    canStart = hdaFile !== null;
-                    break;
-                case 'cdrom-only':
-                    canStart = cdromFile !== null;
-                    break;
-                case 'hda-first':
-                case 'cdrom-first':
-                    canStart = hdaFile !== null || cdromFile !== null;
-                    break;
-            }
-            
-            startButton.disabled = !canStart;
+        function launchWindowsNT() {
+            // Redirect to new.html with Windows NT 4.0 auto-launch
+            // We'll use URL parameters to auto-launch the OS
+            window.location.href = 'new.html?autolaunch=windowsnt4';
         }
-        
-        // Boot order change handler
-        document.getElementById('boot-order').addEventListener('change', function() {
-            updateStartButton();
-            updateStatus(`Boot order changed to: ${this.options[this.selectedIndex].text}`);
-        });
-        
-        // Memory controls change handlers
-        document.getElementById('ram-size').addEventListener('change', function() {
-            const ramSize = this.value;
-            updateStatus(`RAM size set to: ${ramSize} MB`);
-        });
-        
-        document.getElementById('video-memory').addEventListener('change', function() {
-            const videoMemory = this.value;
-            updateStatus(`Video memory set to: ${videoMemory} MB`);
-        });
-        
-        // Windows NT compatibility checkbox handler
-        document.getElementById('winnt-compat').addEventListener('change', function() {
-            const isEnabled = this.checked;
-            updateStatus(`Windows NT compatibility: ${isEnabled ? 'Enabled' : 'Disabled'}`);
-        });
-        
-        function updateStatus(message) {
-            document.getElementById('status').textContent = `Status: ${message}`;
-        }
-        
-        function showError(message) {
-            const status = document.getElementById('status');
-            status.innerHTML = `<div class="error">Error: ${message}</div>`;
-        }
-        
-        function showInfo(message) {
-            const status = document.getElementById('status');
-            status.innerHTML = `<div class="info">Info: ${message}</div>`;
-        }
-        
-        async function startEmulator() {
-            if (emulator) {
-                emulator.destroy();
-                emulator = null;
-                disableCaptureControls();
-            }
-            
-            updateStatus('Initializing emulator...');
-            
-            try {
-                const bootOrder = document.getElementById('boot-order').value;
-                const ramSize = parseInt(document.getElementById('ram-size').value);
-                const videoMemory = parseInt(document.getElementById('video-memory').value);
-                const winntCompat = document.getElementById('winnt-compat').checked;
-                
-                const config = {
-                    wasm_path: "build/v86.wasm",
-                    memory_size: ramSize * 1024 * 1024, // Convert MB to bytes
-                    vga_memory_size: videoMemory * 1024 * 1024, // Convert MB to bytes
-                    screen_container: document.getElementById("screen_container"),
-                    bios: {
-                        url: "build/seabios.bin",
-                    },
-                    vga_bios: {
-                        url: "build/vgabios.bin",
-                    },
-                    autostart: true,
-                };
-                
-                // Apply Windows NT compatibility settings if enabled
-                if (winntCompat) {
-                    config.cpuid_level = 2;
-                    config.acpi = false;
-                }
-                
-                // Configure boot order and drives
-                switch(bootOrder) {
-                    case 'hda-first':
-                        if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
-                        }
-                        if (cdromFile) {
-                            config.cdrom = { buffer: await readFileAsArrayBuffer(cdromFile) };
-                        }
-                        config.boot_order = 0x213; // HDA, CDROM, Floppy
-                        break;
-                        
-                    case 'cdrom-first':
-                        if (cdromFile) {
-                            config.cdrom = { buffer: await readFileAsArrayBuffer(cdromFile) };
-                        }
-                        if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
-                        }
-                        config.boot_order = 0x123; // CDROM, HDA, Floppy
-                        break;
-                        
-                    case 'hda-only':
-                        if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
-                        }
-                        config.boot_order = 0x200; // HDA only
-                        break;
-                        
-                    case 'cdrom-only':
-                        if (cdromFile) {
-                            config.cdrom = { buffer: await readFileAsArrayBuffer(cdromFile) };
-                        }
-                        config.boot_order = 0x100; // CDROM only
-                        break;
-                }
-                
-                const compatMsg = winntCompat ? ' (Windows NT compatibility enabled)' : '';
-                updateStatus(`Starting emulator with ${ramSize}MB RAM and ${videoMemory}MB video memory${compatMsg}...`);
-                emulator = new V86(config);
-                
-                // Set up event handlers
-                emulator.add_listener("emulator-ready", function() {
-                    updateStatus('Emulator started successfully');
-                    enableCaptureControls();
-                    
-                    // Enable mouse and keyboard by default
-                    emulator.mouse_set_status(true);
-                    emulator.keyboard_set_status(true);
-                    keyboardCaptured = true;
-                    updateCaptureUI();
-                });
-                
-                emulator.add_listener("emulator-stopped", function() {
-                    updateStatus('Emulator stopped');
-                    disableCaptureControls();
-                });
-                
-                // Handle mouse lock/unlock events
-                document.addEventListener('pointerlockchange', function() {
-                    const screenContainer = document.getElementById('screen_container');
-                    if (document.pointerLockElement === screenContainer) {
-                        if (!mouseCaptured) {
-                            mouseCaptured = true;
-                            updateCaptureUI();
-                            updateStatus('Mouse captured - Press Ctrl+Alt to release');
-                        }
-                    } else {
-                        if (mouseCaptured) {
-                            mouseCaptured = false;
-                            updateCaptureUI();
-                            updateStatus('Mouse released');
-                        }
-                    }
-                });
-                
-                // Auto-capture mouse on screen click
-                const screenContainer = document.getElementById('screen_container');
-                screenContainer.addEventListener('click', function() {
-                    if (!mouseCaptured) {
-                        toggleMouseCapture();
-                    }
-                });
-                
-                // Global keyboard shortcuts
-                document.addEventListener('keydown', function(e) {
-                    // Ctrl+Alt to release mouse
-                    if (e.ctrlKey && e.altKey && !e.shiftKey && mouseCaptured) {
-                        e.preventDefault();
-                        if (document.exitPointerLock) {
-                            document.exitPointerLock();
-                        }
-                    }
-                    // Ctrl+Alt+Shift to release keyboard
-                    else if (e.ctrlKey && e.altKey && e.shiftKey && keyboardCaptured) {
-                        e.preventDefault();
-                        toggleKeyboardCapture();
-                    }
-                });
-                
-            } catch (error) {
-                console.error('Error starting emulator:', error);
-                showError(`Failed to start emulator: ${error.message}`);
-            }
-        }
-        
-        function toggleMouseCapture() {
-            if (!emulator) return;
-            
-            if (mouseCaptured) {
-                // Release mouse - exit pointer lock
-                if (document.exitPointerLock) {
-                    document.exitPointerLock();
-                }
-                mouseCaptured = false;
-                updateCaptureUI();
-                updateStatus('Mouse released');
-            } else {
-                // Capture mouse using V86's lock_mouse method
-                try {
-                    emulator.lock_mouse();
-                    mouseCaptured = true;
-                    updateCaptureUI();
-                    updateStatus('Mouse captured - Press Ctrl+Alt to release');
-                } catch (error) {
-                    console.error('Failed to capture mouse:', error);
-                    updateStatus('Failed to capture mouse');
-                }
-            }
-        }
-        
-        function toggleKeyboardCapture() {
-            if (!emulator) return;
-            
-            if (keyboardCaptured) {
-                // Release keyboard
-                emulator.keyboard_set_status(false);
-                keyboardCaptured = false;
-                updateCaptureUI();
-                updateStatus('Keyboard released');
-            } else {
-                // Capture keyboard
-                emulator.keyboard_set_status(true);
-                keyboardCaptured = true;
-                updateCaptureUI();
-                updateStatus('Keyboard captured - Press Ctrl+Alt+Shift to release');
-            }
-        }
-        
-        function updateCaptureUI() {
-            const mouseCaptureBtn = document.getElementById('mouse-capture-btn');
-            const keyboardCaptureBtn = document.getElementById('keyboard-capture-btn');
-            const mouseStatus = document.getElementById('mouse-status');
-            const keyboardStatus = document.getElementById('keyboard-status');
-            
-            // Update mouse capture button and status
-            if (mouseCaptured) {
-                mouseCaptureBtn.textContent = 'Release Mouse';
-                mouseCaptureBtn.classList.add('active');
-                mouseStatus.classList.add('active');
-            } else {
-                mouseCaptureBtn.textContent = 'Capture Mouse';
-                mouseCaptureBtn.classList.remove('active');
-                mouseStatus.classList.remove('active');
-            }
-            
-            // Update keyboard capture button and status
-            if (keyboardCaptured) {
-                keyboardCaptureBtn.textContent = 'Release Keyboard';
-                keyboardCaptureBtn.classList.add('active');
-                keyboardStatus.classList.add('active');
-            } else {
-                keyboardCaptureBtn.textContent = 'Capture Keyboard';
-                keyboardCaptureBtn.classList.remove('active');
-                keyboardStatus.classList.remove('active');
-            }
-        }
-        
-        function enableCaptureControls() {
-            document.getElementById('mouse-capture-btn').disabled = false;
-            document.getElementById('keyboard-capture-btn').disabled = false;
-            document.getElementById('special-keys-btn').disabled = false;
-        }
-        
-        function disableCaptureControls() {
-            document.getElementById('mouse-capture-btn').disabled = true;
-            document.getElementById('keyboard-capture-btn').disabled = true;
-            document.getElementById('special-keys-btn').disabled = true;
-            mouseCaptured = false;
-            keyboardCaptured = false;
-            updateCaptureUI();
-            hideSpecialKeysMenu();
-        }
-        
-        function toggleSpecialKeysMenu() {
-            const menu = document.getElementById('special-keys-menu');
-            const button = document.getElementById('special-keys-btn');
-            
-            if (menu.classList.contains('show')) {
-                hideSpecialKeysMenu();
-            } else {
-                showSpecialKeysMenu();
-            }
-        }
-        
-        function showSpecialKeysMenu() {
-            const menu = document.getElementById('special-keys-menu');
-            const button = document.getElementById('special-keys-btn');
-            
-            menu.classList.add('show');
-            button.textContent = 'Special Keys ▲';
-            
-            // Add click listeners to menu items
-            const keyItems = menu.querySelectorAll('.key-item');
-            keyItems.forEach(item => {
-                item.addEventListener('click', handleSpecialKeyClick);
-            });
-            
-            // Close menu when clicking outside
-            document.addEventListener('click', handleOutsideClick);
-        }
-        
-        function hideSpecialKeysMenu() {
-            const menu = document.getElementById('special-keys-menu');
-            const button = document.getElementById('special-keys-btn');
-            
-            menu.classList.remove('show');
-            button.textContent = 'Special Keys ▼';
-            
-            // Remove event listeners
-            document.removeEventListener('click', handleOutsideClick);
-        }
-        
-        function handleOutsideClick(event) {
-            const container = document.querySelector('.special-keys-container');
-            if (!container.contains(event.target)) {
-                hideSpecialKeysMenu();
-            }
-        }
-        
-        function handleSpecialKeyClick(event) {
-            event.stopPropagation();
-            const keyCombo = event.currentTarget.getAttribute('data-keys');
-            const keyName = event.currentTarget.querySelector('.key-name').textContent;
-            
-            sendSpecialKey(keyCombo);
-            updateStatus(`Sent special key: ${keyName}`);
-            hideSpecialKeysMenu();
-        }
-        
-        async function sendSpecialKey(keyCombo) {
-            if (!emulator) return;
-            
-            try {
-                // Map key combinations to their respective scancodes or key combinations
-                switch(keyCombo.toLowerCase()) {
-                    case 'ctrl+alt+delete':
-                        // Send Ctrl+Alt+Delete using scancodes
-                        await emulator.keyboard_send_scancodes([
-                            0x1d,        // Ctrl press
-                            0x38,        // Alt press  
-                            0x53,        // Delete press
-                            0x53 | 0x80, // Delete release
-                            0x38 | 0x80, // Alt release
-                            0x1d | 0x80  // Ctrl release
-                        ], 10);
-                        break;
-                    case 'ctrl+alt+end':
-                        await emulator.keyboard_send_scancodes([
-                            0x1d,        // Ctrl press
-                            0x38,        // Alt press
-                            0xe0, 0x4f,  // End press (extended)
-                            0xe0, 0x4f | 0x80, // End release
-                            0x38 | 0x80, // Alt release
-                            0x1d | 0x80  // Ctrl release
-                        ], 10);
-                        break;
-                    case 'ctrl+shift+escape':
-                        await emulator.keyboard_send_scancodes([
-                            0x1d,        // Ctrl press
-                            0x2a,        // Shift press
-                            0x01,        // Escape press
-                            0x01 | 0x80, // Escape release
-                            0x2a | 0x80, // Shift release
-                            0x1d | 0x80  // Ctrl release
-                        ], 10);
-                        break;
-                    case 'alt+tab':
-                        await emulator.keyboard_send_scancodes([
-                            0x38,        // Alt press
-                            0x0f,        // Tab press
-                            0x0f | 0x80, // Tab release
-                            0x38 | 0x80  // Alt release
-                        ], 10);
-                        break;
-                    case 'alt+f4':
-                        await emulator.keyboard_send_scancodes([
-                            0x38,        // Alt press
-                            0x3e,        // F4 press
-                            0x3e | 0x80, // F4 release
-                            0x38 | 0x80  // Alt release
-                        ], 10);
-                        break;
-                    case 'f1':
-                        await emulator.keyboard_send_scancodes([0x3b, 0x3b | 0x80], 10);
-                        break;
-                    case 'f2':
-                        await emulator.keyboard_send_scancodes([0x3c, 0x3c | 0x80], 10);
-                        break;
-                    case 'f3':
-                        await emulator.keyboard_send_scancodes([0x3d, 0x3d | 0x80], 10);
-                        break;
-                    case 'f4':
-                        await emulator.keyboard_send_scancodes([0x3e, 0x3e | 0x80], 10);
-                        break;
-                    case 'f5':
-                        await emulator.keyboard_send_scancodes([0x3f, 0x3f | 0x80], 10);
-                        break;
-                    case 'f6':
-                        await emulator.keyboard_send_scancodes([0x40, 0x40 | 0x80], 10);
-                        break;
-                    case 'f7':
-                        await emulator.keyboard_send_scancodes([0x41, 0x41 | 0x80], 10);
-                        break;
-                    case 'f8':
-                        await emulator.keyboard_send_scancodes([0x42, 0x42 | 0x80], 10);
-                        break;
-                    case 'f9':
-                        await emulator.keyboard_send_scancodes([0x43, 0x43 | 0x80], 10);
-                        break;
-                    case 'f10':
-                        await emulator.keyboard_send_scancodes([0x44, 0x44 | 0x80], 10);
-                        break;
-                    case 'f11':
-                        await emulator.keyboard_send_scancodes([0x57, 0x57 | 0x80], 10);
-                        break;
-                    case 'f12':
-                        await emulator.keyboard_send_scancodes([0x58, 0x58 | 0x80], 10);
-                        break;
-                    case 'windows':
-                        // Left Windows key
-                        await emulator.keyboard_send_scancodes([0xe0, 0x5b, 0xe0, 0x5b | 0x80], 10);
-                        break;
-                    case 'menu':
-                        // Menu/Application key
-                        await emulator.keyboard_send_scancodes([0xe0, 0x5d, 0xe0, 0x5d | 0x80], 10);
-                        break;
-                    case 'printscreen':
-                        // Print Screen
-                        await emulator.keyboard_send_scancodes([0xe0, 0x2a, 0xe0, 0x37, 0xe0, 0x37 | 0x80, 0xe0, 0x2a | 0x80], 10);
-                        break;
-                    case 'scrolllock':
-                        // Scroll Lock
-                        await emulator.keyboard_send_scancodes([0x46, 0x46 | 0x80], 10);
-                        break;
-                    case 'pause':
-                        // Pause/Break
-                        await emulator.keyboard_send_scancodes([0xe1, 0x1d, 0x45, 0xe1, 0x9d, 0xc5], 10);
-                        break;
-                    case 'insert':
-                        // Insert
-                        await emulator.keyboard_send_scancodes([0xe0, 0x52, 0xe0, 0x52 | 0x80], 10);
-                        break;
-                    default:
-                        console.warn('Unknown key combination:', keyCombo);
-                        updateStatus(`Unknown key combination: ${keyCombo}`);
-                }
-            } catch (error) {
-                console.error('Failed to send special key:', error);
-                updateStatus(`Failed to send special key: ${keyCombo}`);
-            }
-        }
-        
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    resolve(e.target.result);
-                };
-                reader.onerror = function(e) {
-                    reject(new Error(`Failed to read file: ${e.target.error}`));
-                };
-                reader.readAsArrayBuffer(file);
-            });
-        }
-        
-        // Initialize
-        updateStartButton();
-        updateCaptureUI();
-        updateStatus('Ready - Upload files and configure boot order to start');
     </script>
 </body>
 </html>

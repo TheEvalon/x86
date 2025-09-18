@@ -3,7 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V86 OS Launcher</title>
+    <meta name="description" content="Launch pre-configured vintage operating systems including Windows 98, XP, ReactOS, Haiku, and more. 14+ systems ready to run in your browser via V86 emulator.">
+    <meta name="keywords" content="V86 OS launcher, Windows 98, Windows XP, ReactOS, Haiku, vintage OS, retro computing, browser emulation, operating systems collection">
+    <meta name="author" content="V86 Web Interface">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="V86 OS Launcher - 14+ Vintage Operating Systems">
+    <meta property="og:description" content="Experience Windows 98, XP, ReactOS, and more vintage operating systems directly in your browser.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oses.ioblako.com/new.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://oses.ioblako.com/new.html">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "V86 OS Launcher",
+        "description": "Pre-configured vintage operating systems collection for V86 emulator",
+        "url": "https://oses.ioblako.com/new.html",
+        "applicationCategory": "EmulatorApplication",
+        "operatingSystem": "Web Browser",
+        "featureList": [
+            "Windows 1.01 - 1985 first Windows version",
+            "Windows 98 - Popular 9x series",
+            "Windows XP - Luna interface",
+            "ReactOS - Open source Windows NT clone",
+            "Haiku - BeOS-inspired modern OS",
+            "Android x86 - Android for PC",
+            "Damn Small Linux - Tiny Linux distribution"
+        ]
+    }
+    </script>
+    
+    <title>V86 OS Launcher - 14+ Vintage Operating Systems</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3LVGPGFTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E3LVGPGFTN');
+    </script>
+    
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -203,6 +253,88 @@
             background: #2c3e50;
         }
         
+        .special-keys-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .special-keys-button {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .special-keys-button:hover:not(:disabled) {
+            background: #8e44ad;
+        }
+        
+        .special-keys-button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .special-keys-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .special-keys-menu.show {
+            display: block;
+        }
+        
+        .key-category {
+            padding: 8px 12px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            font-weight: 600;
+            font-size: 12px;
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+        
+        .key-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .key-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .key-item:active {
+            background: #e9ecef;
+        }
+        
+        .key-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .key-description {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
         #screen_container {
             border: 2px solid #34495e;
             background: #000;
@@ -356,6 +488,14 @@
                 <button class="launch-button hdd-button">Launch Windows NT 4.0</button>
             </div>
             
+            <div class="os-card hdd" data-path="OSes/windowsnt5/hdd.img" data-type="hdd" data-name="Windows NT 5.0">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows NT 5.0</div>
+                <div class="os-type hdd">Hard Disk</div>
+                <div class="os-description">Advanced NT kernel with enhanced features</div>
+                <button class="launch-button hdd-button">Launch Windows NT 5.0</button>
+            </div>
+            
             <div class="os-card hdd" data-path="OSes/windows2000/hdd.img" data-type="hdd" data-name="Windows 2000">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows 2000</div>
@@ -441,6 +581,113 @@
             <div class="control-buttons">
                 <button id="mouse-capture-btn" class="control-button">Capture Mouse</button>
                 <button id="keyboard-capture-btn" class="control-button">Capture Keyboard</button>
+                
+                <div class="special-keys-container">
+                    <button id="special-keys-btn" class="special-keys-button" disabled>
+                        Special Keys ▼
+                    </button>
+                    <div id="special-keys-menu" class="special-keys-menu">
+                        <div class="key-category">System Keys</div>
+                        <div class="key-item" data-keys="ctrl+alt+delete">
+                            <span class="key-name">Ctrl+Alt+Delete</span>
+                            <span class="key-description">System interrupt</span>
+                        </div>
+                        <div class="key-item" data-keys="ctrl+alt+end">
+                            <span class="key-name">Ctrl+Alt+End</span>
+                            <span class="key-description">Secure attention</span>
+                        </div>
+                        <div class="key-item" data-keys="ctrl+shift+escape">
+                            <span class="key-name">Ctrl+Shift+Esc</span>
+                            <span class="key-description">Task manager</span>
+                        </div>
+                        
+                        <div class="key-category">Function Keys</div>
+                        <div class="key-item" data-keys="f1">
+                            <span class="key-name">F1</span>
+                            <span class="key-description">Help</span>
+                        </div>
+                        <div class="key-item" data-keys="f2">
+                            <span class="key-name">F2</span>
+                            <span class="key-description">Rename</span>
+                        </div>
+                        <div class="key-item" data-keys="f3">
+                            <span class="key-name">F3</span>
+                            <span class="key-description">Search</span>
+                        </div>
+                        <div class="key-item" data-keys="f4">
+                            <span class="key-name">F4</span>
+                            <span class="key-description">Address bar</span>
+                        </div>
+                        <div class="key-item" data-keys="f5">
+                            <span class="key-name">F5</span>
+                            <span class="key-description">Refresh</span>
+                        </div>
+                        <div class="key-item" data-keys="f6">
+                            <span class="key-name">F6</span>
+                            <span class="key-description">Navigate</span>
+                        </div>
+                        <div class="key-item" data-keys="f7">
+                            <span class="key-name">F7</span>
+                            <span class="key-description">Spell check</span>
+                        </div>
+                        <div class="key-item" data-keys="f8">
+                            <span class="key-name">F8</span>
+                            <span class="key-description">Boot options</span>
+                        </div>
+                        <div class="key-item" data-keys="f9">
+                            <span class="key-name">F9</span>
+                            <span class="key-description">Send/Receive</span>
+                        </div>
+                        <div class="key-item" data-keys="f10">
+                            <span class="key-name">F10</span>
+                            <span class="key-description">Menu bar</span>
+                        </div>
+                        <div class="key-item" data-keys="f11">
+                            <span class="key-name">F11</span>
+                            <span class="key-description">Fullscreen</span>
+                        </div>
+                        <div class="key-item" data-keys="f12">
+                            <span class="key-name">F12</span>
+                            <span class="key-description">Save as</span>
+                        </div>
+                        
+                        <div class="key-category">Navigation Keys</div>
+                        <div class="key-item" data-keys="alt+tab">
+                            <span class="key-name">Alt+Tab</span>
+                            <span class="key-description">Switch windows</span>
+                        </div>
+                        <div class="key-item" data-keys="alt+f4">
+                            <span class="key-name">Alt+F4</span>
+                            <span class="key-description">Close window</span>
+                        </div>
+                        <div class="key-item" data-keys="windows">
+                            <span class="key-name">Windows Key</span>
+                            <span class="key-description">Start menu</span>
+                        </div>
+                        <div class="key-item" data-keys="menu">
+                            <span class="key-name">Menu Key</span>
+                            <span class="key-description">Context menu</span>
+                        </div>
+                        
+                        <div class="key-category">Special Characters</div>
+                        <div class="key-item" data-keys="printscreen">
+                            <span class="key-name">Print Screen</span>
+                            <span class="key-description">Screenshot</span>
+                        </div>
+                        <div class="key-item" data-keys="scrolllock">
+                            <span class="key-name">Scroll Lock</span>
+                            <span class="key-description">Scroll mode</span>
+                        </div>
+                        <div class="key-item" data-keys="pause">
+                            <span class="key-name">Pause/Break</span>
+                            <span class="key-description">System pause</span>
+                        </div>
+                        <div class="key-item" data-keys="insert">
+                            <span class="key-name">Insert</span>
+                            <span class="key-description">Insert mode</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button id="back-button" class="control-button back-button">← Back to OS Selection</button>
         </div>
@@ -527,6 +774,7 @@
             backButton.addEventListener('click', showOSSelector);
             mouseCaptureBtn.addEventListener('click', toggleMouseCapture);
             keyboardCaptureBtn.addEventListener('click', toggleKeyboardCapture);
+            document.getElementById('special-keys-btn').addEventListener('click', toggleSpecialKeysMenu);
         }
         
         function handleOSLaunch(card, button) {
@@ -578,6 +826,12 @@
                     autostart: true,
                 };
                 
+                // Apply Windows NT compatibility settings automatically for compatible OS
+                if (needsWinNTCompatibility(name)) {
+                    config.cpuid_level = 2;
+                    config.acpi = false;
+                }
+                
                 // Set boot device and image
                 if (bootType === 'hdd') {
                     config.hda = { url: imagePath };
@@ -587,7 +841,8 @@
                     config.boot_order = 0x123; // CDROM first
                 }
                 
-                updateStatus(`Starting ${name}...`);
+                const compatMsg = needsWinNTCompatibility(name) ? ' (Windows NT compatibility enabled)' : '';
+                updateStatus(`Starting ${name}${compatMsg}...`);
                 emulator = new V86(config);
                 
                 // Set up event handlers
@@ -648,6 +903,7 @@
                 'Windows 3.11': 32 * 1024 * 1024,     // 32MB
                 'Windows 98': 128 * 1024 * 1024,      // 128MB
                 'Windows NT 4.0': 256 * 1024 * 1024,  // 256MB
+                'Windows NT 5.0': 512 * 1024 * 1024,  // 512MB
                 'Windows 2000': 512 * 1024 * 1024,    // 512MB
                 'Windows XP': 512 * 1024 * 1024,      // 512MB
                 'Haiku': 256 * 1024 * 1024,           // 256MB
@@ -657,6 +913,19 @@
             
             return ramConfigs[osName] || 128 * 1024 * 1024; // Default 128MB
         }
+        
+        function needsWinNTCompatibility(osName) {
+            // Return true for OS that need Windows NT compatibility mode
+            const winntOSes = [
+                'Windows NT 4.0',
+                'Windows NT 5.0',
+                'Windows 2000',
+                'Windows XP'
+            ];
+            
+            return winntOSes.includes(osName);
+        }
+        
         
         function showOSSelector() {
             osSelector.style.display = 'grid';
@@ -742,18 +1011,200 @@
         function enableControls() {
             mouseCaptureBtn.disabled = false;
             keyboardCaptureBtn.disabled = false;
+            document.getElementById('special-keys-btn').disabled = false;
         }
         
         function disableControls() {
             mouseCaptureBtn.disabled = true;
             keyboardCaptureBtn.disabled = true;
+            document.getElementById('special-keys-btn').disabled = true;
             mouseCaptured = false;
             keyboardCaptured = false;
             updateControlUI();
+            hideSpecialKeysMenu();
         }
         
         function updateStatus(message) {
             statusElement.textContent = `Status: ${message}`;
+        }
+        
+        function toggleSpecialKeysMenu() {
+            const menu = document.getElementById('special-keys-menu');
+            const button = document.getElementById('special-keys-btn');
+            
+            if (menu.classList.contains('show')) {
+                hideSpecialKeysMenu();
+            } else {
+                showSpecialKeysMenu();
+            }
+        }
+        
+        function showSpecialKeysMenu() {
+            const menu = document.getElementById('special-keys-menu');
+            const button = document.getElementById('special-keys-btn');
+            
+            menu.classList.add('show');
+            button.textContent = 'Special Keys ▲';
+            
+            // Add click listeners to menu items
+            const keyItems = menu.querySelectorAll('.key-item');
+            keyItems.forEach(item => {
+                item.addEventListener('click', handleSpecialKeyClick);
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', handleOutsideClick);
+        }
+        
+        function hideSpecialKeysMenu() {
+            const menu = document.getElementById('special-keys-menu');
+            const button = document.getElementById('special-keys-btn');
+            
+            menu.classList.remove('show');
+            button.textContent = 'Special Keys ▼';
+            
+            // Remove event listeners
+            document.removeEventListener('click', handleOutsideClick);
+        }
+        
+        function handleOutsideClick(event) {
+            const container = document.querySelector('.special-keys-container');
+            if (!container.contains(event.target)) {
+                hideSpecialKeysMenu();
+            }
+        }
+        
+        function handleSpecialKeyClick(event) {
+            event.stopPropagation();
+            const keyCombo = event.currentTarget.getAttribute('data-keys');
+            const keyName = event.currentTarget.querySelector('.key-name').textContent;
+            
+            sendSpecialKey(keyCombo);
+            updateStatus(`Sent special key: ${keyName}`);
+            hideSpecialKeysMenu();
+        }
+        
+        async function sendSpecialKey(keyCombo) {
+            if (!emulator) return;
+            
+            try {
+                // Map key combinations to their respective scancodes or key combinations
+                switch(keyCombo.toLowerCase()) {
+                    case 'ctrl+alt+delete':
+                        // Send Ctrl+Alt+Delete using scancodes
+                        await emulator.keyboard_send_scancodes([
+                            0x1d,        // Ctrl press
+                            0x38,        // Alt press  
+                            0x53,        // Delete press
+                            0x53 | 0x80, // Delete release
+                            0x38 | 0x80, // Alt release
+                            0x1d | 0x80  // Ctrl release
+                        ], 10);
+                        break;
+                    case 'ctrl+alt+end':
+                        await emulator.keyboard_send_scancodes([
+                            0x1d,        // Ctrl press
+                            0x38,        // Alt press
+                            0xe0, 0x4f,  // End press (extended)
+                            0xe0, 0x4f | 0x80, // End release
+                            0x38 | 0x80, // Alt release
+                            0x1d | 0x80  // Ctrl release
+                        ], 10);
+                        break;
+                    case 'ctrl+shift+escape':
+                        await emulator.keyboard_send_scancodes([
+                            0x1d,        // Ctrl press
+                            0x2a,        // Shift press
+                            0x01,        // Escape press
+                            0x01 | 0x80, // Escape release
+                            0x2a | 0x80, // Shift release
+                            0x1d | 0x80  // Ctrl release
+                        ], 10);
+                        break;
+                    case 'alt+tab':
+                        await emulator.keyboard_send_scancodes([
+                            0x38,        // Alt press
+                            0x0f,        // Tab press
+                            0x0f | 0x80, // Tab release
+                            0x38 | 0x80  // Alt release
+                        ], 10);
+                        break;
+                    case 'alt+f4':
+                        await emulator.keyboard_send_scancodes([
+                            0x38,        // Alt press
+                            0x3e,        // F4 press
+                            0x3e | 0x80, // F4 release
+                            0x38 | 0x80  // Alt release
+                        ], 10);
+                        break;
+                    case 'f1':
+                        await emulator.keyboard_send_scancodes([0x3b, 0x3b | 0x80], 10);
+                        break;
+                    case 'f2':
+                        await emulator.keyboard_send_scancodes([0x3c, 0x3c | 0x80], 10);
+                        break;
+                    case 'f3':
+                        await emulator.keyboard_send_scancodes([0x3d, 0x3d | 0x80], 10);
+                        break;
+                    case 'f4':
+                        await emulator.keyboard_send_scancodes([0x3e, 0x3e | 0x80], 10);
+                        break;
+                    case 'f5':
+                        await emulator.keyboard_send_scancodes([0x3f, 0x3f | 0x80], 10);
+                        break;
+                    case 'f6':
+                        await emulator.keyboard_send_scancodes([0x40, 0x40 | 0x80], 10);
+                        break;
+                    case 'f7':
+                        await emulator.keyboard_send_scancodes([0x41, 0x41 | 0x80], 10);
+                        break;
+                    case 'f8':
+                        await emulator.keyboard_send_scancodes([0x42, 0x42 | 0x80], 10);
+                        break;
+                    case 'f9':
+                        await emulator.keyboard_send_scancodes([0x43, 0x43 | 0x80], 10);
+                        break;
+                    case 'f10':
+                        await emulator.keyboard_send_scancodes([0x44, 0x44 | 0x80], 10);
+                        break;
+                    case 'f11':
+                        await emulator.keyboard_send_scancodes([0x57, 0x57 | 0x80], 10);
+                        break;
+                    case 'f12':
+                        await emulator.keyboard_send_scancodes([0x58, 0x58 | 0x80], 10);
+                        break;
+                    case 'windows':
+                        // Left Windows key
+                        await emulator.keyboard_send_scancodes([0xe0, 0x5b, 0xe0, 0x5b | 0x80], 10);
+                        break;
+                    case 'menu':
+                        // Menu/Application key
+                        await emulator.keyboard_send_scancodes([0xe0, 0x5d, 0xe0, 0x5d | 0x80], 10);
+                        break;
+                    case 'printscreen':
+                        // Print Screen
+                        await emulator.keyboard_send_scancodes([0xe0, 0x2a, 0xe0, 0x37, 0xe0, 0x37 | 0x80, 0xe0, 0x2a | 0x80], 10);
+                        break;
+                    case 'scrolllock':
+                        // Scroll Lock
+                        await emulator.keyboard_send_scancodes([0x46, 0x46 | 0x80], 10);
+                        break;
+                    case 'pause':
+                        // Pause/Break
+                        await emulator.keyboard_send_scancodes([0xe1, 0x1d, 0x45, 0xe1, 0x9d, 0xc5], 10);
+                        break;
+                    case 'insert':
+                        // Insert
+                        await emulator.keyboard_send_scancodes([0xe0, 0x52, 0xe0, 0x52 | 0x80], 10);
+                        break;
+                    default:
+                        console.warn('Unknown key combination:', keyCombo);
+                        updateStatus(`Unknown key combination: ${keyCombo}`);
+                }
+            } catch (error) {
+                console.error('Failed to send special key:', error);
+                updateStatus(`Failed to send special key: ${keyCombo}`);
+            }
         }
         
         // Global keyboard shortcuts
@@ -772,9 +1223,32 @@
             }
         });
         
+        // Check for auto-launch parameter
+        function checkAutoLaunch() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const autolaunch = urlParams.get('autolaunch');
+            
+            if (autolaunch === 'windowsnt4') {
+                // Find Windows NT 4.0 card and auto-launch it
+                const ntCard = document.querySelector('[data-name="Windows NT 4.0"]');
+                if (ntCard) {
+                    const launchButton = ntCard.querySelector('.launch-button');
+                    if (launchButton) {
+                        // Small delay to ensure page is fully loaded
+                        setTimeout(() => {
+                            launchButton.click();
+                        }, 500);
+                    }
+                }
+            }
+        }
+        
         // Initialize
         disableControls();
         updateStatus('Select an operating system to launch');
+        
+        // Check for auto-launch after page loads
+        document.addEventListener('DOMContentLoaded', checkAutoLaunch);
     </script>
 </body>
 </html>
