@@ -15,6 +15,7 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
 - **CD-ROM Images** - Mount .iso files for software installation and live systems
 - **Drag & Drop** - Easy file selection with visual feedback
 - **File Validation** - Automatic file type validation and error handling
+ - **ZIP Archives** - Use .zip files containing a single .img (HDD) or .iso (CD-ROM); archives are automatically extracted in the browser
 
 ### 🎮 **Input & Control**
 - **Mouse Capture** - Pointer lock for seamless mouse control
@@ -27,6 +28,7 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
 
 ### 🎨 **Modern UI**
 - **Responsive Design** - Clean, professional interface that works on all devices
+- **Mobile Optimizations** - Safe-area padding, compact controls, and single-column layouts on small screens
 - **Real-time Status** - Live feedback on emulator state and operations
 - **Visual Indicators** - Clear status indicators for mouse/keyboard capture
 - **Organized Controls** - Logical grouping of configuration options
@@ -52,10 +54,11 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
 2. **Select System** - Click any OS card to see details and launch options
 3. **Launch OS** - Click launch button for immediate boot with optimal settings
 4. **Dual Format Systems** - Choose "Boot Installed" or "Install from CD" for Windows XP
+5. **ZIP Support** - Many OS assets can be provided as .zip; the launcher will fetch the archive and extract the inner .img/.iso automatically
 
 #### Option 2: Custom Upload Interface (main.html)
 1. **Configure Memory** - Select desired RAM and video memory amounts
-2. **Upload Images** - Choose .img files for hard disk and/or .iso files for CD-ROM
+2. **Upload Images** - Choose .img files for hard disk and/or .iso files for CD-ROM. You can also upload a .zip containing a single .img as HDA; it will be extracted in-browser
 3. **Set Boot Order** - Select boot priority from the dropdown menu
 4. **Start Emulator** - Click "Start Emulator" to begin
 5. **Interact** - Click screen to capture mouse, use special keys menu as needed
@@ -139,6 +142,7 @@ The interface provides hardware-accurate scancode injection for special keys:
 - **Emulator** - V86 WebAssembly-based x86 emulator
 - **Storage** - Browser-based file handling with FileReader API
 - **Input** - Pointer Lock API for mouse, scancode injection for keyboard
+ - **ZIP Handling** - Client-side archive extraction powered by JSZip for .zip HDD and ISO assets
 
 ### Browser Compatibility
 - **Chrome/Chromium** 57+ (recommended)
@@ -289,6 +293,13 @@ The web interface components (main.html, new.html) and documentation are provide
 - [copy.sh](https://copy.sh/) - Creator's website and online demos
 - [SeaBIOS](https://www.seabios.org/) - BIOS firmware
 - [WebAssembly](https://webassembly.org/) - Core technology
+ - Side Project: [games.ioblako.com](https://games.ioblako.com)
+
+## Contact
+
+For questions, feedback, or collaboration:
+
+- Email: [info@iOblako.com](mailto:info@iOblako.com)
 
 ## Windows 2000 Setup with QEMU
 
