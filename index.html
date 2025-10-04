@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="V86 x86 Emulator Web Interface - Run vintage operating systems like Windows 98, XP, ReactOS, and more directly in your browser. Features 14+ pre-configured systems and custom OS upload.">
+    <meta name="description" content="Experience the ultimate V86 x86 emulator web interface featuring 15+ vintage operating systems running directly in your browser. Launch Windows 1.01, Windows 98, Windows NT 4.0, Windows NT 5.0, Windows 2000, Windows XP, ReactOS, Haiku, Android x86, and Damn Small Linux without any downloads or installations. Our comprehensive emulation platform uses cutting-edge WebAssembly technology to deliver near-native performance for retro computing enthusiasts, educators, and software preservation specialists. Features include pre-configured operating systems with optimal memory settings, custom OS upload capabilities for .img and .iso files, advanced Windows NT compatibility modes with CPUID configuration, full mouse and keyboard capture with special key injection, hardware-accurate scancode generation, and comprehensive system controls. Perfect for educational purposes, software testing, vintage gaming, computing history exploration, and digital preservation projects. The interface supports configurable RAM from 128MB to 1GB, video memory options up to 64MB, flexible boot order selection, and real-time emulator status monitoring. Compatible with all modern browsers including Chrome, Firefox, Safari, and Edge. No plugins required - just open and start computing with authentic vintage operating system experiences powered by the renowned V86 emulator engine.">
     <meta name="keywords" content="V86, x86 emulator, vintage OS, Windows 98, Windows XP, ReactOS, browser emulator, retro computing, operating system emulation">
     <meta name="author" content="V86 Web Interface">
     <meta name="robots" content="index, follow">
@@ -64,16 +64,6 @@
     </script>
     
     <title>V86 x86 Emulator - Run Vintage Operating Systems in Your Browser</title>
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3LVGPGFTN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-E3LVGPGFTN');
-    </script>
     
     <style>
         body {
@@ -255,6 +245,26 @@
             .cta-button {
                 width: 250px;
             }
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .container {
+                padding: 24px 16px;
+            }
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .os-preview {
+                padding: 20px;
+            }
+            .os-list {
+                gap: 10px;
+            }
+            .os-tag {
+                font-size: 0.85rem;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
@@ -331,7 +341,10 @@
         
         <div class="footer">
             <p>Powered by <a href="https://github.com/copy/v86" target="_blank">V86 Emulator</a> by <strong>copy (Fabian Hemmer)</strong></p>
+            <p><strong>GitHub Project:</strong> <a href="https://github.com/TheEvalon/x86" target="_blank">github.com/TheEvalon/x86</a></p>
             <p>Educational and preservation purposes only • <a href="README.md">Documentation</a></p>
+            <p><strong>Side Project:</strong> <a href="https://games.ioblako.com" target="_blank">games.ioblako.com</a></p>
+            <p>Contact us: <a href="mailto:info@iOblako.com">info@iOblako.com</a></p>
         </div>
     </div>
 

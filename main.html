@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Upload and run your own operating system images (.img/.iso) in the V86 x86 emulator. Configure memory, boot order, and special keys for optimal compatibility.">
+    <meta name="description" content="Upload and run your custom operating system images with the V86 x86 emulator's advanced configuration interface. Support for both hard disk images (.img) and CD-ROM images (.iso) with comprehensive customization options including configurable RAM from 128MB to 1GB, video memory settings up to 64MB, flexible boot order selection, and Windows NT compatibility mode with CPUID level 2 configuration. Features advanced emulation controls with full mouse and keyboard capture, special key injection for system commands like Ctrl+Alt+Delete, hardware-accurate scancode generation for perfect compatibility, and real-time emulator status monitoring. Perfect for running custom operating system builds, testing vintage software, educational demonstrations, and digital preservation projects. The interface includes comprehensive special keys menu with system keys, function keys, navigation shortcuts, and special characters. Supports various boot configurations including hard disk first, CD-ROM first, or single-device boot modes. Advanced Windows NT compatibility ensures proper operation of Windows NT 4.0, Windows 2000, Windows XP, and similar NT-based systems. Built on cutting-edge WebAssembly technology for near-native performance directly in your browser without any plugins or downloads required. Compatible with all modern browsers and operating systems for maximum accessibility and convenience.">
     <meta name="keywords" content="V86 emulator, custom OS upload, img files, iso files, x86 emulation, browser emulator, operating system upload">
     <meta name="author" content="V86 Web Interface">
     <meta name="robots" content="index, follow">
@@ -22,15 +22,8 @@
     
     <title>V86 Emulator - Custom OS Upload Interface</title>
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3LVGPGFTN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-E3LVGPGFTN');
-    </script>
+    <!-- JSZip for handling .zip uploads (extracting .img inside) -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     
     <style>
         body {
@@ -375,6 +368,59 @@
             font-size: 12px;
             color: #7f8c8d;
         }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            }
+            .container {
+                border-radius: 6px;
+            }
+            .header {
+                padding: 16px;
+            }
+            .controls {
+                padding: 16px;
+            }
+            .file-input-wrapper {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+            }
+            .file-input-label {
+                width: 100%;
+                text-align: center;
+            }
+            .memory-controls,
+            .boot-controls,
+            .capture-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            select {
+                width: 100%;
+            }
+            .start-button,
+            .capture-button,
+            .special-keys-button {
+                width: 100%;
+            }
+            .screen-container {
+                padding: 10px;
+                min-height: 240px;
+            }
+            #screen_container {
+                width: 100%;
+                max-width: 100%;
+            }
+            #screen_container div {
+                font: 12px 'Courier New', monospace;
+                line-height: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -388,8 +434,8 @@
             <div class="control-group">
                 <label>Hard Disk Image (.img)</label>
                 <div class="file-input-wrapper">
-                    <input type="file" id="hda-file" class="file-input" accept=".img">
-                    <label for="hda-file" class="file-input-label">Choose HDA File</label>
+                    <input type="file" id="hda-file" class="file-input" accept=".img,.zip">
+                    <label for="hda-file" class="file-input-label">Choose HDA File (.img or .zip)</label>
                     <span id="hda-filename" class="file-name"></span>
                 </div>
             </div>
@@ -447,6 +493,10 @@
                         </select>
                     </div>
                     <button id="start-button" class="start-button">Start Emulator</button>
+                    <button id="save-state-btn" class="start-button" style="background:#e67e22" disabled>Save State</button>
+                    <button id="load-state-btn" class="start-button" style="background:#16a085">Load State</button>
+                    <button id="default-settings-btn" class="start-button" style="background:#c0392b">Default Settings</button>
+                    <div style="margin-top:8px; font-size:12px; color:#7f8c8d;" id="state-file-status"></div>
                 </div>
                 
                 <div class="capture-controls">
@@ -601,6 +651,13 @@
         <div class="status" id="status">
             Status: Ready - Upload files and configure boot order to start
         </div>
+        
+        <div style="padding: 20px; background: #2c3e50; color: white; text-align: center; margin-top: 20px;">
+            <p><strong>GitHub Project:</strong> <a href="https://github.com/TheEvalon/x86" target="_blank" style="color: #3498db;">github.com/TheEvalon/x86</a></p>
+            <p style="font-size: 14px; opacity: 0.8;">This project is part of the V86 x86 emulator web interface collection</p>
+            <p><strong>Side Project:</strong> <a href="https://games.ioblako.com" target="_blank" style="color: #3498db;">games.ioblako.com</a></p>
+            <p>Contact us: <a href="mailto:info@iOblako.com" style="color: #3498db;">info@iOblako.com</a></p>
+        </div>
     </div>
 
     <script src="build/libv86.js"></script>
@@ -609,21 +666,67 @@
         
         let emulator = null;
         let hdaFile = null;
+        let hdaZipInfo = { isZip: false, innerImgName: null, buffer: null };
         let cdromFile = null;
         let mouseCaptured = false;
         let keyboardCaptured = false;
+        let stateFileToLoad = null; // Store state file for loading on emulator start
         
         // File input handlers
-        document.getElementById('hda-file').addEventListener('change', function(e) {
+        document.getElementById('hda-file').addEventListener('change', async function(e) {
             hdaFile = e.target.files[0];
             const filename = document.getElementById('hda-filename');
-            if (hdaFile) {
-                filename.textContent = hdaFile.name;
-                filename.style.color = '#27ae60';
-                updateStatus(`HDA file selected: ${hdaFile.name}`);
-            } else {
+            // reset zip info
+            hdaZipInfo = { isZip: false, innerImgName: null, buffer: null };
+            
+            if (!hdaFile) {
                 filename.textContent = '';
+                updateStartButton();
+                return;
             }
+            
+            filename.textContent = hdaFile.name;
+            filename.style.color = '#27ae60';
+            
+            const isZip = /\.zip$/i.test(hdaFile.name);
+            if (isZip) {
+                updateStatus(`ZIP selected: ${hdaFile.name} — extracting .img ...`);
+                try {
+                    const arrayBuf = await readFileAsArrayBuffer(hdaFile);
+                    const zip = await JSZip.loadAsync(arrayBuf);
+                    // try to find first .img in zip (prefer root, then any path)
+                    let imgEntry = null;
+                    // First pass: root entries only
+                    Object.keys(zip.files).some(name => {
+                        const f = zip.files[name];
+                        if (!f.dir && /(^[^\/]+\.img)$/i.test(name)) { imgEntry = f; return true; }
+                        return false;
+                    });
+                    // Second pass: anywhere
+                    if (!imgEntry) {
+                        Object.keys(zip.files).some(name => {
+                            const f = zip.files[name];
+                            if (!f.dir && /\.img$/i.test(name)) { imgEntry = f; return true; }
+                            return false;
+                        });
+                    }
+                    if (!imgEntry) {
+                        showError('No .img file found inside the ZIP');
+                        updateStartButton();
+                        return;
+                    }
+                    const imgBuf = await imgEntry.async('arraybuffer');
+                    hdaZipInfo = { isZip: true, innerImgName: imgEntry.name, buffer: imgBuf };
+                    filename.textContent = `${hdaFile.name} → ${imgEntry.name}`;
+                    updateStatus(`Extracted ${imgEntry.name} from ZIP`);
+                } catch (err) {
+                    console.error('ZIP extraction error:', err);
+                    showError(`Failed to extract .img from ZIP: ${err.message}`);
+                }
+            } else {
+                updateStatus(`HDA file selected: ${hdaFile.name}`);
+            }
+            
             updateStartButton();
         });
         
@@ -649,6 +752,11 @@
         
         // Special keys button handler
         document.getElementById('special-keys-btn').addEventListener('click', toggleSpecialKeysMenu);
+        
+        // State management buttons
+        document.getElementById('save-state-btn').addEventListener('click', saveState);
+        document.getElementById('load-state-btn').addEventListener('click', loadState);
+        document.getElementById('default-settings-btn').addEventListener('click', resetToDefaults);
         
         function updateStartButton() {
             const startButton = document.getElementById('start-button');
@@ -749,7 +857,11 @@
                 switch(bootOrder) {
                     case 'hda-first':
                         if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            if (hdaZipInfo.isZip && hdaZipInfo.buffer) {
+                                config.hda = { buffer: hdaZipInfo.buffer };
+                            } else {
+                                config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            }
                         }
                         if (cdromFile) {
                             config.cdrom = { buffer: await readFileAsArrayBuffer(cdromFile) };
@@ -762,14 +874,22 @@
                             config.cdrom = { buffer: await readFileAsArrayBuffer(cdromFile) };
                         }
                         if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            if (hdaZipInfo.isZip && hdaZipInfo.buffer) {
+                                config.hda = { buffer: hdaZipInfo.buffer };
+                            } else {
+                                config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            }
                         }
                         config.boot_order = 0x123; // CDROM, HDA, Floppy
                         break;
                         
                     case 'hda-only':
                         if (hdaFile) {
-                            config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            if (hdaZipInfo.isZip && hdaZipInfo.buffer) {
+                                config.hda = { buffer: hdaZipInfo.buffer };
+                            } else {
+                                config.hda = { buffer: await readFileAsArrayBuffer(hdaFile) };
+                            }
                         }
                         config.boot_order = 0x200; // HDA only
                         break;
@@ -787,9 +907,27 @@
                 emulator = new V86(config);
                 
                 // Set up event handlers
-                emulator.add_listener("emulator-ready", function() {
+                emulator.add_listener("emulator-ready", async function() {
                     updateStatus('Emulator started successfully');
                     enableCaptureControls();
+                    
+                    // Enable state management buttons
+                    document.getElementById('save-state-btn').disabled = false;
+                    
+                    // Load state if one was selected before starting
+                    if (stateFileToLoad) {
+                        try {
+                            updateStatus('Restoring state...');
+                            await emulator.restore_state(stateFileToLoad);
+                            updateStatus('State restored successfully');
+                            showInfo('Emulator started with saved state!');
+                            stateFileToLoad = null;
+                            updateStateFileStatus();
+                        } catch (error) {
+                            console.error('Failed to restore state:', error);
+                            showError(`Failed to restore state: ${error.message}`);
+                        }
+                    }
                     
                     // Enable mouse and keyboard by default
                     emulator.mouse_set_status(true);
@@ -801,6 +939,9 @@
                 emulator.add_listener("emulator-stopped", function() {
                     updateStatus('Emulator stopped');
                     disableCaptureControls();
+                    
+                    // Disable save state button
+                    document.getElementById('save-state-btn').disabled = true;
                 });
                 
                 // Handle mouse lock/unlock events
@@ -1129,6 +1270,135 @@
                 };
                 reader.readAsArrayBuffer(file);
             });
+        }
+        
+        // State management functions
+        async function saveState() {
+            if (!emulator) {
+                showError('No emulator running to save state from');
+                return;
+            }
+            
+            try {
+                const saveBtn = document.getElementById('save-state-btn');
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving...';
+                updateStatus('Saving emulator state...');
+                
+                const stateBuffer = await emulator.save_state();
+                const blob = new Blob([stateBuffer]);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'vm_state.bin';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateStatus('State saved successfully as vm_state.bin');
+                showInfo('State saved! Compress with Zstd (zstd -19 vm_state.bin) for smaller file size (.zst)');
+            } catch (error) {
+                console.error('Failed to save state:', error);
+                showError(`Failed to save state: ${error.message}`);
+            } finally {
+                const saveBtn = document.getElementById('save-state-btn');
+                saveBtn.textContent = 'Save State';
+                saveBtn.disabled = false;
+            }
+        }
+        
+        async function loadState() {
+            // Create file input for state file
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.bin,.zst';
+            
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const loadBtn = document.getElementById('load-state-btn');
+                    loadBtn.disabled = true;
+                    loadBtn.textContent = 'Loading...';
+                    updateStatus(`Reading state file ${file.name}...`);
+                    
+                    const arrayBuffer = await readFileAsArrayBuffer(file);
+                    
+                    if (emulator) {
+                        // Emulator is running - load state immediately
+                        await emulator.restore_state(arrayBuffer);
+                        updateStatus(`State loaded successfully from ${file.name}`);
+                        showInfo('State restored successfully!');
+                    } else {
+                        // Emulator not running - store state for loading on start
+                        stateFileToLoad = arrayBuffer;
+                        updateStatus(`State file loaded: ${file.name} - will restore when emulator starts`);
+                        showInfo(`State file "${file.name}" ready. Start the emulator to restore this state.`);
+                        updateStateFileStatus(file.name);
+                    }
+                } catch (error) {
+                    console.error('Failed to load state:', error);
+                    showError(`Failed to load state: ${error.message}`);
+                } finally {
+                    const loadBtn = document.getElementById('load-state-btn');
+                    loadBtn.textContent = 'Load State';
+                    loadBtn.disabled = false;
+                }
+            };
+            
+            input.click();
+        }
+        
+        function updateStateFileStatus(filename) {
+            const statusDiv = document.getElementById('state-file-status');
+            if (filename) {
+                statusDiv.textContent = `📁 State ready: ${filename}`;
+                statusDiv.style.color = '#27ae60';
+            } else {
+                statusDiv.textContent = '';
+            }
+        }
+        
+        function resetToDefaults() {
+            // Confirm before resetting
+            if (!confirm('Reset all settings to defaults? This will clear uploaded files and stop the emulator.')) {
+                return;
+            }
+            
+            // Stop emulator if running
+            if (emulator) {
+                emulator.destroy();
+                emulator = null;
+                disableCaptureControls();
+            }
+            
+            // Reset file inputs
+            hdaFile = null;
+            hdaZipInfo = { isZip: false, innerImgName: null, buffer: null };
+            cdromFile = null;
+            stateFileToLoad = null;
+            document.getElementById('hda-file').value = '';
+            document.getElementById('cdrom-file').value = '';
+            document.getElementById('hda-filename').textContent = '';
+            document.getElementById('cdrom-filename').textContent = '';
+            updateStateFileStatus();
+            
+            // Reset select elements to defaults
+            document.getElementById('ram-size').value = '512';
+            document.getElementById('video-memory').value = '32';
+            document.getElementById('boot-order').value = 'hda-first';
+            document.getElementById('winnt-compat').checked = false;
+            
+            // Disable save state button only
+            document.getElementById('save-state-btn').disabled = true;
+            
+            // Update UI
+            updateStartButton();
+            updateCaptureUI();
+            updateStatus('Settings reset to defaults');
+            showInfo('All settings have been reset to defaults. Upload files to start.');
         }
         
         // Initialize

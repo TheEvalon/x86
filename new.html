@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Launch pre-configured vintage operating systems including Windows 98, XP, ReactOS, Haiku, and more. 14+ systems ready to run in your browser via V86 emulator.">
+    <meta name="description" content="Launch 15+ pre-configured vintage operating systems instantly in your browser with the V86 OS Launcher. Experience authentic retro computing with Windows 1.01, Windows 2.x, Windows 3.0/3.11, Windows 98, Windows NT 4.0, Windows NT 5.0, Windows 2000, Windows XP, Windows CE 5.0, ReactOS, Haiku, Android x86, Damn Small Linux, Hiren's Boot CD, and CE Collections. Each system is optimally configured with appropriate RAM allocations, automatic Windows NT compatibility for NT-based systems, and seamless browser integration. Features include one-click OS launching, automatic CPUID configuration for older operating systems, comprehensive mouse and keyboard capture with special key injection, hardware-accurate scancode generation, and real-time emulator status monitoring. Perfect for educational purposes, software preservation, vintage gaming, computing history exploration, and nostalgic computing experiences. The interface automatically applies optimal memory settings ranging from 4MB for Windows 1.01 to 512MB for modern systems, ensures proper Windows NT compatibility with CPUID level 2 and ACPI disabled for NT 4.0, NT 5.0, Windows 2000, and XP, and provides comprehensive system controls including capture management and special key combinations. Built on cutting-edge WebAssembly technology for near-native performance without any downloads, installations, or plugins required. Compatible with all modern browsers and designed for maximum accessibility and user experience.">
     <meta name="keywords" content="V86 OS launcher, Windows 98, Windows XP, ReactOS, Haiku, vintage OS, retro computing, browser emulation, operating systems collection">
     <meta name="author" content="V86 Web Interface">
     <meta name="robots" content="index, follow">
@@ -44,15 +44,8 @@
     
     <title>V86 OS Launcher - 14+ Vintage Operating Systems</title>
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E3LVGPGFTN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-E3LVGPGFTN');
-    </script>
+    <!-- JSZip for handling .zip HDD images -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     
     <style>
         body {
@@ -429,6 +422,78 @@
             margin-top: 15px;
             font-style: italic;
         }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            }
+            .container {
+                border-radius: 6px;
+            }
+            .header {
+                padding: 16px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .os-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 12px;
+            }
+            .os-card {
+                padding: 16px;
+            }
+            .os-icon {
+                font-size: 36px;
+            }
+            .os-name {
+                font-size: 16px;
+            }
+            .os-description {
+                font-size: 13px;
+            }
+            .dual-buttons {
+                flex-direction: column;
+            }
+            .launch-button,
+            .control-button,
+            .special-keys-button {
+                width: 100%;
+            }
+            .emulator-container {
+                padding: 10px;
+                min-height: 260px;
+            }
+            #screen_container {
+                width: 100%;
+                max-width: 100%;
+            }
+            #screen_container div {
+                font: 12px 'Courier New', monospace;
+                line-height: 12px;
+            }
+            .emulator-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .legend {
+                padding: 12px;
+            }
+            .legend-item {
+                margin-right: 10px;
+                font-size: 13px;
+            }
+            .credits {
+                padding: 12px;
+            }
+            .credits-content p {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -456,7 +521,7 @@
                 <button class="launch-button hdd-button">Launch Windows 2.x</button>
             </div>
             
-            <div class="os-card iso" data-path="OSes/windows3/Win30.iso" data-type="iso" data-name="Windows 3.0">
+            <div class="os-card iso" data-path="OSes/windows3/Win30.zip" data-type="iso" data-name="Windows 3.0">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows 3.0</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -464,7 +529,7 @@
                 <button class="launch-button iso-button">Launch Windows 3.0</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/windows311/hdd.img" data-type="hdd" data-name="Windows 3.11">
+            <div class="os-card hdd" data-path="OSes/windows311/hdd.zip" data-type="hdd" data-name="Windows 3.11">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows 3.11</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -472,7 +537,7 @@
                 <button class="launch-button hdd-button">Launch Windows 3.11</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/windows98/hdd.img" data-type="hdd" data-name="Windows 98">
+            <div class="os-card hdd" data-path="OSes/windows98/hdd.zip" data-type="hdd" data-name="Windows 98">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows 98</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -480,7 +545,7 @@
                 <button class="launch-button hdd-button">Launch Windows 98</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/windowsnt4/hdd.img" data-type="hdd" data-name="Windows NT 4.0">
+            <div class="os-card hdd" data-path="OSes/windowsnt4/hdd.zip" data-type="hdd" data-name="Windows NT 4.0">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows NT 4.0</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -488,7 +553,7 @@
                 <button class="launch-button hdd-button">Launch Windows NT 4.0</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/windowsnt5/hdd.img" data-type="hdd" data-name="Windows NT 5.0">
+            <div class="os-card hdd" data-path="OSes/windowsnt5/hdd.zip" data-type="hdd" data-name="Windows NT 5.0">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows NT 5.0</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -496,7 +561,7 @@
                 <button class="launch-button hdd-button">Launch Windows NT 5.0</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/windows2000/hdd.img" data-type="hdd" data-name="Windows 2000">
+            <div class="os-card hdd" data-path="OSes/windows2000/hdd.zip" data-type="hdd" data-name="Windows 2000">
                 <div class="os-icon">🪟</div>
                 <div class="os-name">Windows 2000</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -516,7 +581,7 @@
             </div>
             
             <!-- Other Windows -->
-            <div class="os-card iso" data-path="OSes/windowsce5/ce5.iso" data-type="iso" data-name="Windows CE 5.0">
+            <div class="os-card iso" data-path="OSes/windowsce5/ce5.zip" data-type="iso" data-name="Windows CE 5.0">
                 <div class="os-icon">📱</div>
                 <div class="os-name">Windows CE 5.0</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -525,7 +590,7 @@
             </div>
             
             <!-- Alternative Operating Systems -->
-            <div class="os-card iso" data-path="OSes/reactos/reactos.iso" data-type="iso" data-name="ReactOS">
+            <div class="os-card iso" data-path="OSes/reactos/reactos.zip" data-type="iso" data-name="ReactOS">
                 <div class="os-icon">⚛️</div>
                 <div class="os-name">ReactOS</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -533,7 +598,7 @@
                 <button class="launch-button iso-button">Launch ReactOS</button>
             </div>
             
-            <div class="os-card hdd" data-path="OSes/Haiku/hdd.img" data-type="hdd" data-name="Haiku">
+            <div class="os-card hdd" data-path="OSes/Haiku/hdd.zip" data-type="hdd" data-name="Haiku">
                 <div class="os-icon">🌺</div>
                 <div class="os-name">Haiku</div>
                 <div class="os-type hdd">Hard Disk</div>
@@ -542,7 +607,7 @@
             </div>
             
             <!-- Linux Systems -->
-            <div class="os-card iso" data-path="OSes/DSL/dsl.iso" data-type="iso" data-name="Damn Small Linux">
+            <div class="os-card iso" data-path="OSes/DSL/dsl.zip" data-type="iso" data-name="Damn Small Linux">
                 <div class="os-icon">🐧</div>
                 <div class="os-name">Damn Small Linux</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -551,7 +616,7 @@
             </div>
             
             <!-- Mobile/Embedded -->
-            <div class="os-card iso" data-path="OSes/android/android.iso" data-type="iso" data-name="Android x86">
+            <div class="os-card iso" data-path="OSes/android/android.zip" data-type="iso" data-name="Android x86">
                 <div class="os-icon">🤖</div>
                 <div class="os-name">Android x86</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -560,7 +625,7 @@
             </div>
             
             <!-- Utility Collections -->
-            <div class="os-card iso" data-path="OSes/hbcd/hbcd.iso" data-type="iso" data-name="Hiren's Boot CD">
+            <div class="os-card iso" data-path="OSes/hbcd/hbcd.zip" data-type="iso" data-name="Hiren's Boot CD">
                 <div class="os-icon">🔧</div>
                 <div class="os-name">Hiren's Boot CD</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -568,7 +633,7 @@
                 <button class="launch-button iso-button">Launch HBCD</button>
             </div>
             
-            <div class="os-card iso" data-path="OSes/CECollection/CECollections.iso" data-type="iso" data-name="CE Collections">
+            <div class="os-card iso" data-path="OSes/CECollection/CECollections.zip" data-type="iso" data-name="CE Collections">
                 <div class="os-icon">💿</div>
                 <div class="os-name">CE Collections</div>
                 <div class="os-type iso">CD-ROM</div>
@@ -729,6 +794,9 @@
                 <p>• V86 Project: <a href="https://github.com/copy/v86" target="_blank">github.com/copy/v86</a></p>
                 <p>• Website: <a href="https://copy.sh/" target="_blank">copy.sh</a></p>
                 <p>• Licensed under BSD 2-Clause License</p>
+                <p><strong>GitHub Project:</strong> <a href="https://github.com/TheEvalon/x86" target="_blank">github.com/TheEvalon/x86</a></p>
+                <p><strong>Side Project:</strong> <a href="https://games.ioblako.com" target="_blank">games.ioblako.com</a></p>
+                <p>Contact us: <a href="mailto:info@iOblako.com">info@iOblako.com</a></p>
                 <p class="disclaimer">Educational and preservation purposes only. Ensure OS images are legally obtained.</p>
             </div>
         </div>
@@ -834,10 +902,70 @@
                 
                 // Set boot device and image
                 if (bootType === 'hdd') {
-                    config.hda = { url: imagePath };
+                    // If HDD points to a .zip, fetch and extract inner .img and use buffer
+                    if (/\.zip$/i.test(imagePath)) {
+                        updateStatus(`Fetching ZIP: ${imagePath}`);
+                        const response = await fetch(imagePath);
+                        if (!response.ok) throw new Error(`Failed to fetch ZIP (${response.status})`);
+                        const zipArrayBuffer = await response.arrayBuffer();
+                        const zip = await JSZip.loadAsync(zipArrayBuffer);
+                        let imgEntry = null;
+                        // Prefer root-level .img
+                        Object.keys(zip.files).some(name => {
+                            const f = zip.files[name];
+                            if (!f.dir && /(^[^\\\/]+\.img)$/i.test(name)) { imgEntry = f; return true; }
+                            return false;
+                        });
+                        // Fallback: any .img in zip
+                        if (!imgEntry) {
+                            Object.keys(zip.files).some(name => {
+                                const f = zip.files[name];
+                                if (!f.dir && /\.img$/i.test(name)) { imgEntry = f; return true; }
+                                return false;
+                            });
+                        }
+                        if (!imgEntry) {
+                            throw new Error('No .img found inside ZIP');
+                        }
+                        updateStatus(`Extracting ${imgEntry.name} ...`);
+                        const imgBuffer = await imgEntry.async('arraybuffer');
+                        config.hda = { buffer: imgBuffer };
+                    } else {
+                        config.hda = { url: imagePath };
+                    }
                     config.boot_order = 0x213; // HDD first
                 } else {
-                    config.cdrom = { url: imagePath };
+                    // ISO boot: support .zip that contains an .iso
+                    if (/\.zip$/i.test(imagePath)) {
+                        updateStatus(`Fetching ZIP: ${imagePath}`);
+                        const response = await fetch(imagePath);
+                        if (!response.ok) throw new Error(`Failed to fetch ZIP (${response.status})`);
+                        const zipArrayBuffer = await response.arrayBuffer();
+                        const zip = await JSZip.loadAsync(zipArrayBuffer);
+                        let isoEntry = null;
+                        // Prefer root-level .iso
+                        Object.keys(zip.files).some(name => {
+                            const f = zip.files[name];
+                            if (!f.dir && /(^[^\\\/]+\.iso)$/i.test(name)) { isoEntry = f; return true; }
+                            return false;
+                        });
+                        // Fallback: any .iso
+                        if (!isoEntry) {
+                            Object.keys(zip.files).some(name => {
+                                const f = zip.files[name];
+                                if (!f.dir && /\.iso$/i.test(name)) { isoEntry = f; return true; }
+                                return false;
+                            });
+                        }
+                        if (!isoEntry) {
+                            throw new Error('No .iso found inside ZIP');
+                        }
+                        updateStatus(`Extracting ${isoEntry.name} ...`);
+                        const isoBuffer = await isoEntry.async('arraybuffer');
+                        config.cdrom = { buffer: isoBuffer };
+                    } else {
+                        config.cdrom = { url: imagePath };
+                    }
                     config.boot_order = 0x123; // CDROM first
                 }
                 
