@@ -15,7 +15,8 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
 - **CD-ROM Images** - Mount .iso files for software installation and live systems
 - **Drag & Drop** - Easy file selection with visual feedback
 - **File Validation** - Automatic file type validation and error handling
- - **ZIP Archives** - Use .zip files containing a single .img (HDD) or .iso (CD-ROM); archives are automatically extracted in the browser
+- **ZIP Archives** - Use .zip files containing a single .img (HDD) or .iso (CD-ROM); archives are automatically extracted in the browser
+- **State Management** - Save and restore complete VM states for instant boot (supports .bin and .zst formats)
 
 ### 🎮 **Input & Control**
 - **Mouse Capture** - Pointer lock for seamless mouse control
@@ -60,8 +61,11 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
 1. **Configure Memory** - Select desired RAM and video memory amounts
 2. **Upload Images** - Choose .img files for hard disk and/or .iso files for CD-ROM. You can also upload a .zip containing a single .img as HDA; it will be extracted in-browser
 3. **Set Boot Order** - Select boot priority from the dropdown menu
-4. **Start Emulator** - Click "Start Emulator" to begin
-5. **Interact** - Click screen to capture mouse, use special keys menu as needed
+4. **Optional: Load State** - Load a saved VM state (.bin or .zst) before starting for instant boot
+5. **Start Emulator** - Click "Start Emulator" to begin (automatically restores state if loaded)
+6. **Save State** - Once running, save current VM state for future fast boot
+7. **Interact** - Click screen to capture mouse, use special keys menu as needed
+8. **Reset** - Use "Default Settings" button to clear all configurations and files
 
 ## File Structure
 
@@ -95,6 +99,49 @@ A modern, feature-rich web interface for the V86 x86 emulator that provides an e
     ├── vgabios.bin        # VGA BIOS
     └── screen.js          # Screen adapter
 ```
+
+## State Management (Fast Boot)
+
+The emulator now supports saving and restoring complete VM states, allowing you to skip the boot process entirely and jump directly to a running system.
+
+### Save State
+1. **Start your OS** - Boot the operating system normally
+2. **Configure and prepare** - Set up your system, install software, reach the desired state
+3. **Click "Save State"** - Downloads `vm_state.bin` to your computer
+4. **Optional: Compress** - Use Zstandard compression for smaller files:
+   ```bash
+   zstd -19 vm_state.bin -o vm_state.bin.zst
+   ```
+
+### Load State (Before Starting)
+1. **Click "Load State"** - Select your saved `.bin` or `.zst` file
+2. **See confirmation** - Status shows "📁 State ready: [filename]"
+3. **Configure settings** - Upload disk images and set memory as needed
+4. **Click "Start Emulator"** - VM boots instantly to saved state
+
+### Load State (While Running)
+- Click "Load State" while emulator is running
+- State restores immediately to running VM
+- Useful for switching between different saved states
+
+### State File Formats
+| Format | Description | Size | Compression Command |
+|--------|-------------|------|---------------------|
+| `.bin` | Uncompressed raw state | ~512MB+ | N/A (original format) |
+| `.bin.zst` | Zstandard compressed | ~50-200MB | `zstd -19 state.bin` |
+
+### Use Cases
+- **Skip boot time** - Jump directly to desktop/login screen
+- **Testing scenarios** - Save states at different points
+- **Quick demos** - Pre-configured systems ready instantly
+- **Development** - Save environment states for testing
+- **Preservation** - Archive complete system states
+
+### Important Notes
+- State files must match the disk image used when saving
+- Memory settings should match the state's configuration
+- State files are specific to the V86 emulator
+- Compressed states are decompressed automatically
 
 ## Configuration Options
 
@@ -206,9 +253,15 @@ The emulator can run various x86 operating systems:
 - Try a lighter guest operating system
 
 #### File Upload Issues
-- Verify file extensions (.img for HDA, .iso for CDROM)
+- Verify file extensions (.img for HDA, .iso for CDROM, .bin/.zst for states)
 - Check file size limits (browser dependent)
 - Ensure files are not corrupted
+
+#### State Loading Issues
+- Ensure state file matches the disk image being used
+- Verify memory settings match the state's configuration
+- State files from other emulators are not compatible
+- Try uncompressed .bin if .zst fails to load
 
 ### Debug Information
 Enable browser developer tools (F12) to view:
@@ -232,6 +285,8 @@ Key V86 API methods used:
 - `keyboard_send_scancodes()` - Send special keys
 - `lock_mouse()` - Capture mouse input
 - `keyboard_set_status()` - Enable/disable keyboard
+- `save_state()` - Export complete VM state
+- `restore_state()` - Load VM state from buffer
 
 ### Contributing
 1. Fork the repository
